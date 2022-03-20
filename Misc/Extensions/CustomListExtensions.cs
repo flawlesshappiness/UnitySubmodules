@@ -10,10 +10,22 @@ public static class CustomListExtensions
         while(n > 1)
         {
             n--;
-            int k = Random.Range(0, list.Count);
+            int k = UnityEngine.Random.Range(0, list.Count);
             T temp = list[k];
             list[k] = list[n];
             list[n] = temp;
         }
+    }
+
+    public static T Random<T>(this IList<T> list)
+    {
+        return list[UnityEngine.Random.Range(0, list.Count)];
+    }
+
+    public static T PopRandom<T>(this IList<T> list)
+    {
+        var element = list.Random();
+        list.Remove(element);
+        return element;
     }
 }

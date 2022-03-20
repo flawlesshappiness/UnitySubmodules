@@ -8,4 +8,9 @@ public static class CustomArrayExtensions
     {
         return array[Mathf.Min(idx, array.Length-1)];
     }
+
+    public static T Random<T>(this T[] array)
+    {
+        return array[UnityEngine.Random.Range(0, array.Length)];
+    }
 }
