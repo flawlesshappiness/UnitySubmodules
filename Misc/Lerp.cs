@@ -306,7 +306,7 @@ public class Lerp<T> : ILerp
 
     public ILerp Loop(int loops = -1)
     {
-        _loops = loops;
+        _loops = loops - 1;
         return this;
     }
 
