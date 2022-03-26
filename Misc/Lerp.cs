@@ -271,13 +271,18 @@ public class Lerp<T> : ILerp
     public void Apply()
     {
         if (GetTime() < _timeStart) return; // Lerp hasn't started yet
+        if (!IsObjectActive()) return; // Object is inactive/inexistent
         onApply?.Invoke(GetLerp());
     }
 
     public void End()
     {
         _timeEnd = GetTime(); // Set the end time to the current time
-        onEnd?.Invoke();
+
+        if (IsObjectActive())
+        {
+            onEnd?.Invoke();
+        }
     }
 
     public ILerp Curve(Func<float, float> funcCurve)
@@ -610,13 +615,9 @@ public class Lerp : MonoBehaviour
     static IEnumerator LerpCoroutine(ILerp lerp)
     {
         yield return lerp.GetEnumerator();
-
-        // Apply lerp one final time once ended
-        if (lerp.IsObjectActive())
-        {
-            lerp.Apply();
-            lerp.End();
-        }
+        yield return null;
+        lerp.Apply();
+        lerp.End();
 
         // Remove lerp references
         instance.Remove(lerp.GetID());
