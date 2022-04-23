@@ -28,4 +28,11 @@ public static class CustomListExtensions
         list.Remove(element);
         return element;
     }
+
+    public static T Pop<T>(this IList<T> list)
+    {
+        var element = list[0];
+        list.RemoveAt(0);
+        return element;
+    }
 }

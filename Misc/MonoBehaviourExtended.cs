@@ -4,12 +4,11 @@ using UnityEngine;
 
 public class MonoBehaviourExtended : MonoBehaviour
 {
+    #region GET_COMPONENT_ONCE
     public enum ComponentSearchType { THIS, CHILDREN, PARENT }
-
     private Dictionary<System.Type, Component> _component_dictionary = new Dictionary<System.Type, Component>();
     private Dictionary<System.Type, Component[]> _components_dictionary = new Dictionary<System.Type, Component[]>();
 
-    #region GET_COMPONENT_ONCE
     /// <summary>
     /// Gets a component, and caches the result
     /// </summary>
@@ -75,6 +74,12 @@ public class MonoBehaviourExtended : MonoBehaviour
                 return GetComponentsInParent<T>(include_inactive);
             default: return null;
         }
+    }
+    #endregion
+    #region PARTICLE SYSTEM
+    public ParticleSystemDuplicate InstantiateParticle(string resourcePath)
+    {
+        return Resources.Load<ParticleSystem>(resourcePath).Duplicate();
     }
     #endregion
 }

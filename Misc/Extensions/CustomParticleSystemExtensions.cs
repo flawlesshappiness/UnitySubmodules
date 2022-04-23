@@ -3,54 +3,102 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class CustomParticleSystemExtensions {
-    public static void Adjust(this ParticleSystem ps, System.Action<ParticleSystem.MainModule, ParticleSystem.EmissionModule> adjust)
+    public static ParticleSystemDuplicate Duplicate(this ParticleSystem ps)
     {
-        adjust(ps.main, ps.emission);
+        return new ParticleSystemDuplicate(ps);
+    }
+}
+
+public class ParticleSystemDuplicate
+{
+    private ParticleSystem ps;
+    private ParticleSystem.MainModule mm;
+    private ParticleSystem.EmissionModule em;
+    private ParticleSystem.CollisionModule cm;
+
+    public ParticleSystemDuplicate(ParticleSystem ps)
+    {
+        this.ps = Object.Instantiate(ps.gameObject).GetComponent<ParticleSystem>();
+        this.mm = ps.main;
+        this.em = ps.emission;
+        this.cm = ps.collision;
     }
 
-    public class Parent
+    public ParticleSystemDuplicate Play()
     {
-        private Transform parent;
-        private bool inheritPosition;
-        private bool inheritRotation;
-        private bool inheritScale;
-        private bool twoD;
-
-        public Parent(Transform parent, bool twoD, bool inheritPosition, bool inheritRotation, bool inheritScale)
-        {
-            this.parent = parent;
-            this.twoD = twoD;
-            this.inheritPosition = inheritPosition;
-            this.inheritRotation = inheritRotation;
-            this.inheritScale = inheritScale;
-        }
-
-        public void Adjust(ParticleSystem ps)
-        {
-            var t = ps.transform;
-            t.SetParent(parent);
-            if (inheritPosition) t.position = parent.position;
-            if (inheritRotation) t.rotation = twoD ? Quaternion.Euler(parent.rotation.z + 90f, 90f, -90f) : parent.rotation;
-            if (inheritScale) t.localScale = parent.localScale;
-        }
+        ps.Play();
+        return this;
     }
 
-    /// <summary>
-    /// Instantiates a ParticleSystem and adjusts its Transform
-    /// </summary>
-    /// <param name="prefab">ParticleSystem to instantiate</param>
-    /// <param name="parent">Parent settings for the ParticleSystem. If Null, does nothing.</param>
-    /// <param name="position">Custom position</param>
-    /// <returns></returns>
-    public static ParticleSystem InstantiatePrefab(this ParticleSystem prefab, Parent parent, Vector3 position)
+    public ParticleSystemDuplicate Position(Vector3 position)
     {
-        GameObject g = GameObject.Instantiate(prefab.gameObject) as GameObject;
-        ParticleSystem ps = g.GetComponent<ParticleSystem>();
-        if (!ps.main.loop) GameObject.Destroy(g, ps.main.duration);
-
         ps.transform.position = position;
-        if(parent != null) parent.Adjust(ps);
+        return this;
+    }
 
-        return ps;
+    public ParticleSystemDuplicate Rotation(Quaternion rotation)
+    {
+        ps.transform.rotation = rotation;
+        return this;
+    }
+
+    public ParticleSystemDuplicate Euler(Vector3 euler)
+    {
+        ps.transform.eulerAngles = euler;
+        return this;
+    }
+
+    public ParticleSystemDuplicate Euler(float x, float y, float z)
+    {
+        ps.transform.eulerAngles = new Vector3(x, y, z);
+        return this;
+    }
+
+    public ParticleSystemDuplicate Scale(Vector3 scale)
+    {
+        ps.transform.localScale = scale;
+        return this;
+    }
+
+    public ParticleSystemDuplicate Scale(float x, float y, float z)
+    {
+        ps.transform.localScale = new Vector3(x, y, z);
+        return this;
+    }
+
+    public ParticleSystemDuplicate Parent(Transform parent)
+    {
+        ps.transform.parent = parent;
+        return this;
+    }
+
+    public ParticleSystemDuplicate Destroy(float time)
+    {
+        Object.Destroy(ps.gameObject, time);
+        return this;
+    }
+
+    public ParticleSystemDuplicate ModifyEmission(System.Action<ParticleSystem.EmissionModule> action)
+    {
+        action(em);
+        return this;
+    }
+
+    public ParticleSystemDuplicate ModifyMain(System.Action<ParticleSystem.MainModule> action)
+    {
+        action(mm);
+        return this;
+    }
+
+    public ParticleSystemDuplicate ModifyCollision(System.Action<ParticleSystem.CollisionModule> action)
+    {
+        action(cm);
+        return this;
+    }
+
+    public ParticleSystemDuplicate ModifySystem(System.Action<ParticleSystem> action)
+    {
+        action(ps);
+        return this;
     }
 }
