@@ -45,7 +45,10 @@ public class ViewController : MonoBehaviour
         if (_views.ContainsKey(tag))
         {
             var view_prev = _views[tag];
-            view_prev.Close(time);
+            if (view_prev)
+            {
+                view_prev.Close(time);
+            }
             _views.Remove(tag);
         }
     }
