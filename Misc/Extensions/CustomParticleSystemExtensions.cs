@@ -7,6 +7,24 @@ public static class CustomParticleSystemExtensions {
     {
         return new ParticleSystemDuplicate(ps);
     }
+
+    public static void ModifyEmission(this ParticleSystem ps, System.Action<ParticleSystem.EmissionModule> action)
+    {
+        var e = ps.emission;
+        action(e);
+    }
+
+    public static void ModifyMain(this ParticleSystem ps, System.Action<ParticleSystem.MainModule> action)
+    {
+        var m = ps.main;
+        action(m);
+    }
+
+    public static void ModifyCollision(this ParticleSystem ps, System.Action<ParticleSystem.CollisionModule> action)
+    {
+        var c = ps.collision;
+        action(c);
+    }
 }
 
 public class ParticleSystemDuplicate
