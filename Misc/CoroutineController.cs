@@ -46,6 +46,11 @@ public class CoroutineController : MonoBehaviour
         coroutines.Remove(c.ID);
         c.OnEndAction?.Invoke();
     }
+
+    public bool Has(string id)
+    {
+        return coroutines.ContainsKey(id);
+    }
 }
 
 public class CustomCoroutine
