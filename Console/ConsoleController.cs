@@ -13,6 +13,8 @@ namespace Flawliz.Console
         private bool VisibleView { get; set; }
 
         private Dictionary<string, Command> commands = new Dictionary<string, Command>();
+        private List<string> commands_prev = new List<string>();
+        private int idx_commands;
 
         private static ConsoleController Create()
         {
@@ -58,6 +60,16 @@ namespace Flawliz.Console
             {
                 AutofillSuggestion();
             }
+
+            if (Input.GetKeyUp(KeyCode.UpArrow))
+            {
+                SetCommandIndex(idx_commands - 1);
+            }
+
+            if (Input.GetKeyUp(KeyCode.DownArrow))
+            {
+                SetCommandIndex(idx_commands + 1);
+            }
         }
 
         private void TryExecuteCommand()
@@ -73,6 +85,9 @@ namespace Flawliz.Console
             {
                 View.WriteMessage("Invalid command:", string.Format("{0}", input));
             }
+
+            commands_prev.Add(input);
+            idx_commands = commands_prev.Count - 1;
 
             View.Input = "";
             View.FocusInputField();
@@ -100,6 +115,15 @@ namespace Flawliz.Console
             if (!string.IsNullOrEmpty(suggestion))
             {
                 View.SetInput(suggestion);
+            }
+        }
+
+        private void SetCommandIndex(int idx)
+        {
+            idx_commands = Mathf.Clamp(idx, 0, commands_prev.Count - 1);
+            if(commands_prev.Count > 0)
+            {
+                View.SetInput(commands_prev[idx_commands]);
             }
         }
 
