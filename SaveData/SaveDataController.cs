@@ -1,5 +1,7 @@
+using Flawliz.Console;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class SaveDataController : MonoBehaviour
@@ -11,7 +13,13 @@ public class SaveDataController : MonoBehaviour
     {
         var g = new GameObject(nameof(SaveDataController));
         _instance = g.AddComponent<SaveDataController>();
+        _instance.Initialize();
         return _instance;
+    }
+
+    public void Initialize()
+    {
+        ConsoleController.Instance.RegisterCommand("ClearSaveData", ClearSaveData);
     }
 
     private void OnApplicationQuit()
@@ -55,5 +63,17 @@ public class SaveDataController : MonoBehaviour
         var data = data_objects[type];
         var json = JsonUtility.ToJson(data);
         PlayerPrefs.SetString(type.ToString(), json);
+    }
+
+    private void ClearSaveData()
+    {
+        PlayerPrefs.DeleteAll();
+        data_objects.Clear();
+
+#if UNITY_EDITOR
+        EditorApplication.ExitPlaymode();
+#else
+        Application.Quit();
+#endif
     }
 }

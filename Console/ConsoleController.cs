@@ -1,48 +1,130 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public class ConsoleController : MonoBehaviour
+namespace Flawliz.Console
 {
-    private static ConsoleController _instance;
-    public static ConsoleController Instance { get { return _instance ?? Create(); } }
-    private ConsoleView View { get; set; }
-    private bool VisibleView { get; set; }
-
-    private static ConsoleController Create()
+    public class ConsoleController : MonoBehaviour
     {
-        var g = new GameObject(nameof(ConsoleController));
-        DontDestroyOnLoad(g);
-        _instance = g.AddComponent<ConsoleController>();
-        _instance.Initialize();
-        return _instance;
-    }
+        private static ConsoleController _instance;
+        public static ConsoleController Instance { get { return _instance ?? Create(); } }
+        private ConsoleView View { get; set; }
+        private bool VisibleView { get; set; }
 
-    public void EnsureExistence()
-    {
+        private Dictionary<string, Command> commands = new Dictionary<string, Command>();
 
-    }
-
-    private void Initialize()
-    {
-        var prefab = Resources.Load<ConsoleView>(nameof(ConsoleView));
-        View = Instantiate(prefab).GetComponent<ConsoleView>();
-        View.SetVisible(false);
-        DontDestroyOnLoad(View.gameObject);
-        VisibleView = false;
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Backslash))
+        private static ConsoleController Create()
         {
-            ToggleView();
+            var g = new GameObject(nameof(ConsoleController));
+            DontDestroyOnLoad(g);
+            _instance = g.AddComponent<ConsoleController>();
+            _instance.Initialize();
+            return _instance;
         }
-    }
 
-    private void ToggleView()
-    {
-        VisibleView = !VisibleView;
-        View.SetVisible(VisibleView);
+        public void EnsureExistence()
+        {
+
+        }
+
+        private void Initialize()
+        {
+            var prefab = Resources.Load<ConsoleView>(nameof(ConsoleView));
+            View = Instantiate(prefab).GetComponent<ConsoleView>();
+            View.SetVisible(false);
+            DontDestroyOnLoad(View.gameObject);
+            VisibleView = false;
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Backslash))
+            {
+                ToggleView();
+            }
+
+            if (!VisibleView)
+            {
+                return;
+            }
+
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                TryExecuteCommand();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                AutofillSuggestion();
+            }
+        }
+
+        private void TryExecuteCommand()
+        {
+            var input = View.Input;
+            var args = input.Split(' ');
+            if (commands.ContainsKey(input))
+            {
+                commands[args[0]].Execute(args);
+                View.WriteMessage(string.Format("> {0}", input), "");
+            }
+            else
+            {
+                View.WriteMessage("Invalid command:", string.Format("{0}", input));
+            }
+
+            View.Input = "";
+            View.FocusInputField();
+        }
+
+        public void LogError(string msg)
+        {
+            View.WriteMessage("ERROR", msg);
+        }
+
+        private void ToggleView()
+        {
+            VisibleView = !VisibleView;
+            View.SetVisible(VisibleView);
+        }
+
+        public string GetSuggestion(string input)
+        {
+            return input.Length == 0 ? "" : commands.Keys.Where(name => name.ToLower().StartsWith(input.ToLower())).FirstOrDefault() ?? "";
+        }
+
+        private void AutofillSuggestion()
+        {
+            var suggestion = GetSuggestion(View.Input);
+            if (!string.IsNullOrEmpty(suggestion))
+            {
+                View.SetInput(suggestion);
+            }
+        }
+
+        #region COMMANDS
+        public void RegisterCommand(string name, System.Action action)
+        {
+            RegisterCommand(name, new CommandNoArgs(action));
+        }
+
+        public void RegisterCommand(string name, System.Action<string[]> action)
+        {
+            RegisterCommand(name, new CommandArgs(action));
+        }
+
+        private void RegisterCommand(string name, Command command)
+        {
+            if (!commands.ContainsKey(name))
+            {
+                commands.Add(name, command);
+            }
+            else
+            {
+                print("Command already exists: " + name);
+            }
+        }
+        #endregion
     }
 }
