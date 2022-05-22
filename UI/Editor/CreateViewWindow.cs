@@ -10,7 +10,7 @@ public class CreateViewWindow : EditorWindow
 
     private const string EDITOR_PREFS_VIEW = "GeneratedViewAsset";
 
-    [MenuItem("Assets/Create/UI/New View", false, 1)]
+    [MenuItem("Assets/Create/UI/View", false, 1)]
     public static void ShowWinow()
     {
         if(window != null)

@@ -47,6 +47,18 @@ public class CoroutineController : MonoBehaviour
         c.OnEndAction?.Invoke();
     }
 
+    public void Kill(CustomCoroutine cr)
+    {
+        if(cr != null)
+        {
+            StopCoroutine(cr.Coroutine);
+            if (coroutines.ContainsKey(cr.ID))
+            {
+                coroutines.Remove(cr.ID);
+            }
+        }
+    }
+
     public bool Has(string id)
     {
         return coroutines.ContainsKey(id);
@@ -58,7 +70,7 @@ public class CustomCoroutine
     public string ID { get; set; }
     public IEnumerator Enumerator { get; set; }
     public Coroutine Coroutine { get; set; }
-    public System.Action OnEndAction { get; private set; }
+    public System.Action OnEndAction { get; set; }
 
     public CustomCoroutine OnEnd(System.Action action)
     {
