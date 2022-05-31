@@ -19,24 +19,17 @@ public class CoroutineController : MonoBehaviour
 
     private Dictionary<string, CustomCoroutine> coroutines = new Dictionary<string, CustomCoroutine>();
 
-    public CustomCoroutine Run(IEnumerator enumerator, string id)
+    public CustomCoroutine Run(IEnumerator enumerator, string id) => Run(enumerator, this, id);
+
+    public CustomCoroutine Run(IEnumerator enumerator, MonoBehaviour connection, string id)
     {
         var c = new CustomCoroutine();
         c.ID = id;
         c.Enumerator = enumerator;
 
-        if (coroutines.ContainsKey(id))
-        {
-            var _c = coroutines[id];
-            coroutines.Remove(id);
-            if(_c.Coroutine != null)
-            {
-                StopCoroutine(_c.Coroutine);
-            }
-        }
-
+        Kill(id);
         coroutines.Add(id, c);
-        c.Coroutine = StartCoroutine(RunCoroutineCr(c));
+        c.Coroutine = connection.StartCoroutine(RunCoroutineCr(c));
         return c;
     }
 
@@ -51,10 +44,19 @@ public class CoroutineController : MonoBehaviour
     {
         if(cr != null)
         {
-            StopCoroutine(cr.Coroutine);
-            if (coroutines.ContainsKey(cr.ID))
+            Kill(cr.ID);
+        }
+    }
+
+    private void Kill(string id)
+    {
+        if (coroutines.ContainsKey(id))
+        {
+            var _c = coroutines[id];
+            coroutines.Remove(id);
+            if (_c.Coroutine != null)
             {
-                coroutines.Remove(cr.ID);
+                StopCoroutine(_c.Coroutine);
             }
         }
     }
@@ -70,7 +72,7 @@ public class CustomCoroutine
     public string ID { get; set; }
     public IEnumerator Enumerator { get; set; }
     public Coroutine Coroutine { get; set; }
-    public System.Action OnEndAction { get; set; }
+    public System.Action OnEndAction { get; private set; }
 
     public CustomCoroutine OnEnd(System.Action action)
     {

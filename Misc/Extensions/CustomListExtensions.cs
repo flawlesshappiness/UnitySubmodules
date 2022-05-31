@@ -22,6 +22,15 @@ public static class CustomListExtensions
         return list[UnityEngine.Random.Range(0, list.Count)];
     }
 
+    public static List<T> Random<T>(this IList<T> list, int count)
+    {
+        var list_random = new List<T>();
+        var list_copy = new List<T>(list);
+        for (int i = 0; i < count; i++)
+            list_random.Add(list_copy.PopRandom());
+        return list_random;
+    }
+
     public static T PopRandom<T>(this IList<T> list)
     {
         var element = list.Random();

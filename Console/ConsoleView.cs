@@ -26,6 +26,7 @@ namespace Flawliz.Console
         {
             cvg.alpha = visible ? 1 : 0;
             cvg.blocksRaycasts = visible;
+            cvg.interactable = visible;
 
             if (visible)
             {
