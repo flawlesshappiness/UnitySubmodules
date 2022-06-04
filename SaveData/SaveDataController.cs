@@ -4,20 +4,10 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class SaveDataController : MonoBehaviour
+public class SaveDataController : Singleton
 {
-    private static SaveDataController _instance;
-    public static SaveDataController Instance { get { return _instance ?? Create(); } }
-
-    public static SaveDataController Create()
-    {
-        var g = new GameObject(nameof(SaveDataController));
-        _instance = g.AddComponent<SaveDataController>();
-        _instance.Initialize();
-        return _instance;
-    }
-
-    public void Initialize()
+    public static SaveDataController Instance { get { return Instance<SaveDataController>(); } }
+    public override void Initialize()
     {
         ConsoleController.Instance.RegisterCommand("ClearSaveData", ClearSaveData);
     }

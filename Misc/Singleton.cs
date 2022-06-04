@@ -8,7 +8,8 @@ public abstract class Singleton : MonoBehaviour
     private static T CreateInstance<T>() where T : Singleton
     {
         var type = typeof(T);
-        var g = new GameObject(nameof(T));
+        var g = new GameObject(typeof(T).ToString() + " (Singleton)");
+        DontDestroyOnLoad(g);
         var i = g.AddComponent<T>();
         i.Initialize();
         _singletons.Add(type, i);

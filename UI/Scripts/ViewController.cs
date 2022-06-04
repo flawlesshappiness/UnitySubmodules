@@ -2,19 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ViewController : MonoBehaviour
+public class ViewController : Singleton
 {
-    #region INSTANCE
-    private static ViewController _instance;
-    public static ViewController Instance { get { return _instance ??  Create(); } private set { _instance = value; } }
-
-    private static ViewController Create()
-    {
-        var g = new GameObject(nameof(ViewController));
-        Instance = g.AddComponent<ViewController>();
-        return Instance;
-    }
-    #endregion
+    public static ViewController Instance { get { return Instance<ViewController>(); } }
     #region VIEW
     private Dictionary<string, View> _views = new Dictionary<string, View>();
     public T ShowView<T>(float time = 0.5f, string tag = "") where T : View
