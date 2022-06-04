@@ -5,10 +5,9 @@ using UnityEngine;
 
 namespace Flawliz.Console
 {
-    public class ConsoleController : MonoBehaviour
+    public class ConsoleController : Singleton
     {
-        private static ConsoleController _instance;
-        public static ConsoleController Instance { get { return _instance ?? Create(); } }
+        public static ConsoleController Instance { get { return Instance<ConsoleController>(); } }
         private ConsoleView View { get; set; }
         private bool VisibleView { get; set; }
 
@@ -16,22 +15,9 @@ namespace Flawliz.Console
         private List<string> commands_prev = new List<string>();
         private int idx_commands;
 
-        private static ConsoleController Create()
+        public override void Initialize()
         {
-            var g = new GameObject(nameof(ConsoleController));
-            DontDestroyOnLoad(g);
-            _instance = g.AddComponent<ConsoleController>();
-            _instance.Initialize();
-            return _instance;
-        }
-
-        public void EnsureExistence()
-        {
-
-        }
-
-        private void Initialize()
-        {
+            base.Initialize();
             var prefab = Resources.Load<ConsoleView>(nameof(ConsoleView));
             View = Instantiate(prefab).GetComponent<ConsoleView>();
             View.SetVisible(false);
