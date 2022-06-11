@@ -29,7 +29,8 @@ public class CoroutineController : MonoBehaviour
 
         Kill(id);
         coroutines.Add(id, c);
-        c.Coroutine = StartCoroutine(RunCr());
+
+        c.Coroutine = connection.StartCoroutine(RunCr());
         return c;
 
         IEnumerator RunCr()
@@ -54,7 +55,8 @@ public class CoroutineController : MonoBehaviour
         {
             var _c = coroutines[id];
             coroutines.Remove(id);
-            if (_c.Coroutine != null)
+
+            if(_c.Coroutine != null)
             {
                 _c.Connection.StopCoroutine(_c.Coroutine);
             }
