@@ -25,20 +25,19 @@ public class CoroutineController : MonoBehaviour
     {
         var c = new CustomCoroutine();
         c.ID = id;
-        c.Enumerator = enumerator;
         c.Connection = connection;
 
         Kill(id);
         coroutines.Add(id, c);
-        c.Coroutine = connection.StartCoroutine(RunCoroutineCr(c));
+        c.Coroutine = StartCoroutine(RunCr());
         return c;
-    }
 
-    private IEnumerator RunCoroutineCr(CustomCoroutine c)
-    {
-        yield return c.Enumerator;
-        coroutines.Remove(c.ID);
-        c.OnEndAction?.Invoke();
+        IEnumerator RunCr()
+        {
+            yield return enumerator;
+            coroutines.Remove(c.ID);
+            c.OnEndAction?.Invoke();
+        }
     }
 
     public void Kill(CustomCoroutine cr)
@@ -71,7 +70,6 @@ public class CoroutineController : MonoBehaviour
 public class CustomCoroutine
 {
     public string ID { get; set; }
-    public IEnumerator Enumerator { get; set; }
     public Coroutine Coroutine { get; set; }
     public MonoBehaviour Connection { get; set; }
     public System.Action OnEndAction { get; private set; }
