@@ -4,41 +4,9 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 using TMPro;
-
-#region ENUMERATOR
-public class LerpEnumerator : IEnumerator
-{
-    private ILerp _lerp;
-
-    public LerpEnumerator(ILerp lerp)
-    {
-        _lerp = lerp;
-    }
-
-    public object Current => _lerp;
-
-    public bool MoveNext()
-    {
-        if (!_lerp.IsObjectActive()) return false;
-        _lerp.Apply();
-        return !_lerp.HasEnded();
-    }
-
-    public void Reset()
-    {
-        _lerp.Reset();
-    }
-}
-#endregion
 #region ILERP
-public interface ILerp : IEnumerable
+public interface ILerp
 {
-    /// <summary>
-    /// Gets this lerp's id
-    /// </summary>
-    /// <returns>The id</returns>
-    string GetID();
-
     /// <summary>
     /// Checks if the lerp has ended
     /// </summary>
@@ -60,6 +28,11 @@ public interface ILerp : IEnumerable
     /// Ends the lerp, and calls the lerp's OnEnd function, if any
     /// </summary>
     void End();
+
+    /// <summary>
+    /// Kills the lerp without ending it
+    /// </summary>
+    void Kill();
 
     /// <summary>
     /// Sets a curve function
@@ -120,12 +93,27 @@ public interface ILerp : IEnumerable
     /// </summary>
     /// <returns>The lerp</returns>
     ILerp Unclamp();
+
+    /// <summary>
+    /// Kills the lerp if connected gameobject is inactive or destroyed
+    /// </summary>
+    /// <param name="g">Connected gameobject</param>
+    /// <returns>The lerp</returns>
+    ILerp Connect(GameObject g);
+
+    /// <summary>
+    /// Gets the running coroutine
+    /// </summary>
+    /// <returns>The coroutine</returns>
+    Coroutine GetCoroutine();
 }
 #endregion
 #region LERP<T>
 public class Lerp<T> : ILerp
 {
     public string id;
+    public Coroutine coroutine;
+    public Lerp instance;
 
     private float _time;
     private float _timeStart;
@@ -134,13 +122,14 @@ public class Lerp<T> : ILerp
     private T _valueStart;
     private T _valueEnd;
 
+    private bool _connected;
+    private GameObject _connection;
+
     private Func<T, T, float, T> _funcLerpClamped;
     private Func<T, T, float, T> _funcLerpUnclamped;
     private Func<float, float> _funcCurve;
     public Action<T> onApply;
     public Action onEnd;
-
-    public GameObject cancelWith;
 
     // Loop
     private int _loops = 0;
@@ -250,7 +239,7 @@ public class Lerp<T> : ILerp
     /// <returns>True if exists and is active</returns>
     public bool IsObjectActive()
     {
-        return cancelWith != null && cancelWith.activeInHierarchy;
+        return !_connected || (_connection != null && _connection.activeInHierarchy);
     }
 
     /// <summary>
@@ -263,11 +252,6 @@ public class Lerp<T> : ILerp
     }
 
     #region INTERFACE FUNCTIONS
-    public string GetID()
-    {
-        return id;
-    }
-
     public void Apply()
     {
         if (GetTime() < _timeStart) return; // Lerp hasn't started yet
@@ -283,6 +267,11 @@ public class Lerp<T> : ILerp
         {
             onEnd?.Invoke();
         }
+    }
+
+    public void Kill()
+    {
+        instance.Kill(id);
     }
 
     public ILerp Curve(Func<float, float> funcCurve)
@@ -342,7 +331,14 @@ public class Lerp<T> : ILerp
         return this;
     }
 
-    public IEnumerator GetEnumerator() => (IEnumerator)(new LerpEnumerator(this));
+    public ILerp Connect(GameObject g)
+    {
+        _connected = g != null;
+        _connection = g;
+        return this;
+    }
+
+    public Coroutine GetCoroutine() => coroutine;
     #endregion
 }
 #endregion
@@ -352,14 +348,14 @@ public class Lerp : MonoBehaviour
     private enum TypeTransform { POSITION, ROTATION, EULER, SCALE } // Enum used to create transform lerps
     private enum TypeGraphic { COLOR, ALPHA } // Enum used to create graphic lerps
     public enum Axis { ALL, X, Y, Z } // Enum used to create transform lerps on an axis
-    public enum Curve { LINEAR, EASE_END, EASE_START, EXPONENTIAL, SMOOTHSTEP, SMOOTHERSTEP, SINE, SINE_2 } // Predefined lerp curve types
+    public enum Curve { LINEAR, EASE_END, EASE_START, EXPONENTIAL, SMOOTHSTEP, SMOOTHERSTEP } // Predefined lerp curve types
     private static Lerp instance; // The lerp instance running the coroutines
 
     private const bool DEBUG = false; // Enable to print debug messages
 
-    private Dictionary<string, IEnumerator> dicCoroutines = new Dictionary<string, IEnumerator>(); // Dictionary of <lerp id, coroutine>
+    private Dictionary<string, Coroutine> dicCoroutines = new Dictionary<string, Coroutine>(); // Dictionary of <internal id, coroutine>
 
-    #region HELPER CLASSES
+    #region WRAPPER CLASSES
     private class LerpObjectWrapper<V, O>
     {
         public GameObject gameObject;
@@ -584,7 +580,7 @@ public class Lerp : MonoBehaviour
     /// <summary>
     /// Creates and initializes the Lerp instance, which runs the coroutines
     /// </summary>
-    static void Initialize()
+    private static void Initialize()
     {
         if(instance == null)
         {
@@ -600,10 +596,10 @@ public class Lerp : MonoBehaviour
     /// </summary>
     /// <typeparam name="T">The lerp type</typeparam>
     /// <param name="lerp">The lerp</param>
-    public static ILerp Run<T>(Lerp<T> lerp)
+    private static ILerp Run<T>(Lerp<T> lerp)
     {
         if (instance == null) Initialize();
-        instance.Run(LerpCoroutine(lerp), lerp.GetID());
+        instance.Run(LerpCoroutine(lerp), lerp);
         return lerp;
     }
 
@@ -612,26 +608,22 @@ public class Lerp : MonoBehaviour
     /// </summary>
     /// <param name="lerp">The lerp</param>
     /// <returns></returns>
-    static IEnumerator LerpCoroutine(ILerp lerp)
+    private static IEnumerator LerpCoroutine<T>(Lerp<T> lerp)
     {
-        yield return lerp.GetEnumerator();
-        yield return null;
-        lerp.Apply();
-        lerp.End();
+        while(lerp.IsObjectActive() && !lerp.HasEnded())
+        {
+            lerp.Apply();
+            yield return null;
+        }
+
+        if (lerp.IsObjectActive()) // Apply one final time, if active
+        {
+            lerp.Apply();
+            lerp.End();
+        }
 
         // Remove lerp references
-        instance.Remove(lerp.GetID());
-    }
-
-    /// <summary>
-    /// Kills a lerp
-    /// </summary>
-    /// <param name="lerp">The lerp</param>
-    public static void Kill(ILerp lerp)
-    {
-        string id = lerp.GetID();
-        if(instance.HasID(id))
-            instance.Kill(id);
+        instance.Remove(lerp.id);
     }
 
     /// <summary>
@@ -658,27 +650,24 @@ public class Lerp : MonoBehaviour
             case Curve.EXPONENTIAL: return (float t) => t * t;
             case Curve.SMOOTHSTEP: return (float t) => t * t * (3f - 2f * t);
             case Curve.SMOOTHERSTEP: return (float t) => t * t * t * (t * (6f * t - 15f) + 10f);
-            case Curve.SINE: return (float t) => Mathf.Sin(Mathf.PI * t);
-            case Curve.SINE_2: return (float t) => Mathf.Sin(Mathf.PI * t * 2);
             default: return (float t) => t;
         }
     }
     #endregion
     #region INSTANCE
     /// <summary>
-    /// Runs a coroutine and maps it with a given id
+    /// Runs a coroutine and maps it with a given lerp
     /// </summary>
-    /// <param name="coroutine">The coroutine</param>
-    /// <param name="id">The id</param>
-    public void Run(IEnumerator coroutine, string id)
+    /// <param name="enumerator">The enumerator</param>
+    /// <param name="lerp">The lerp</param>
+    public void Run<T>(IEnumerator enumerator, Lerp<T> lerp)
     {
-        // If any lerp with this id exists, kill it first
-        if (HasID(id)) Kill(id);
+        if (DEBUG) print("Lerp.Run; " + lerp.id);
 
-        // Start lerp coroutine
-        if (DEBUG) print("Lerp.Run; " + id);
-        dicCoroutines.Add(id, coroutine);
-        StartCoroutine(coroutine);
+        lerp.instance = this;
+        if (dicCoroutines.ContainsKey(lerp.id)) Kill(lerp.id);
+        lerp.coroutine = StartCoroutine(enumerator);
+        dicCoroutines.Add(lerp.id, lerp.coroutine);
     }
 
     /// <summary>
@@ -694,23 +683,13 @@ public class Lerp : MonoBehaviour
     /// <summary>
     /// Kills and removes coroutine with given id
     /// </summary>
-    /// <param name="id">The id</param>
+    /// <param name="id">The internal id</param>
     public void Kill(string id)
     {
         if (DEBUG) print("Lerp.Kill; " + id);
 
         StopCoroutine(dicCoroutines[id]);
         Remove(id);
-    }
-
-    /// <summary>
-    /// Checks if any coroutine exists with a given id
-    /// </summary>
-    /// <param name="id">The id</param>
-    /// <returns>True if coroutine exists, else false</returns>
-    public bool HasID(string id)
-    {
-        return dicCoroutines.ContainsKey(id);
     }
     #endregion
     #region CREATE
@@ -720,7 +699,7 @@ public class Lerp : MonoBehaviour
         Lerp<V> lerp = new Lerp<V>(time, start, end);
         lerp.onApply = wrapper.Set;
         lerp.id = wrapper.id;
-        lerp.cancelWith = wrapper.gameObject;
+        lerp.Connect(wrapper.gameObject);
         return lerp;
     }
 
@@ -731,7 +710,7 @@ public class Lerp : MonoBehaviour
         Lerp<V> lerp = new Lerp<V>(time, start, end);
         lerp.onApply = wrapper.Set;
         lerp.id = wrapper.id;
-        lerp.cancelWith = wrapper.gameObject;
+        lerp.Connect(wrapper.gameObject);
         return lerp;
     }
 
@@ -741,7 +720,7 @@ public class Lerp : MonoBehaviour
         Lerp<V> lerp = new Lerp<V>(time, start, end);
         lerp.onApply = wrapper.Set;
         lerp.id = wrapper.id;
-        lerp.cancelWith = wrapper.gameObject;
+        lerp.Connect(wrapper.gameObject);
         return lerp;
     }
 
@@ -752,24 +731,8 @@ public class Lerp : MonoBehaviour
         Lerp<V> lerp = new Lerp<V>(time, start, end);
         lerp.onApply = wrapper.Set;
         lerp.id = wrapper.id;
-        lerp.cancelWith = wrapper.gameObject;
+        lerp.Connect(wrapper.gameObject);
         return lerp;
-    }
-    #endregion
-    #region TIMER
-    /// <summary>
-    /// Calls a function when the given time has passed
-    /// </summary>
-    /// <param name="time">The timer duration</param>
-    /// <param name="onEnd">Function called when the timer ends</param>
-    /// <param name="cancelWith">If this has been destroyed, cancel the timer</param>
-    /// <returns>The lerp</returns>
-    public static ILerp Timer(float time, Action onEnd, GameObject cancelWith)
-    {
-        var lerp = new Lerp<float>(time, 0, 1);
-        lerp.cancelWith = cancelWith;
-        lerp.id = "timer_" + GetUniqueID();
-        return Run(lerp).OnEnd(onEnd);
     }
     #endregion
     #region VALUE
@@ -780,16 +743,29 @@ public class Lerp : MonoBehaviour
     /// <param name="time">Lerp duration</param>
     /// <param name="start">The start value</param>
     /// <param name="end">The end value</param>
-    /// <param name="onApply">The action to call each lerp frame</param>
-    /// <param name="cancelWith">The GameObject to cancel the coroutine with</param>
     /// <param name="id">A value-lerp with this id will be overwritten by this lerp</param>
+    /// <param name="onApply">The action to call each lerp frame</param>
     /// <returns>The lerp</returns>
-    public static ILerp Value<T>(float time, T start, T end, Action<T> onApply, GameObject cancelWith, string id = null)
+    public static ILerp Value<T>(float time, T start, T end, string id, Action<T> onApply)
     {
         var lerp = new Lerp<T>(time, start, end);
-        lerp.cancelWith = cancelWith;
-        lerp.id = id == null ? "value_" + GetUniqueID() : "value_" + id;
         lerp.onApply = onApply;
+        lerp.id = id;
+        return Run(lerp);
+    }
+
+    /// <summary>
+    /// Lerps a value from 0f to 1f
+    /// </summary>
+    /// <param name="time">Lerp duration</param>
+    /// <param name="id">A value-lerp with this id will be overwritten by this lerp</param>
+    /// <param name="onApply">The action to call each lerp frame</param>
+    /// <returns>The lerp</returns>
+    public static ILerp Value(float time, string id, Action<float> onApply)
+    {
+        var lerp = new Lerp<float>(time, 0f, 1f);
+        lerp.onApply = onApply;
+        lerp.id = id;
         return Run(lerp);
     }
     #endregion
@@ -805,10 +781,7 @@ public class Lerp : MonoBehaviour
     /// <param name="local">If position should be local or global</param>
     /// <returns>The lerp</returns>
     public static ILerp Position<T>(T transform, float time, Vector3 start, Vector3 end, bool local = false)
-    {
-        var lerp = Create(transform, time, start, end, local, TypeTransform.POSITION, Axis.ALL);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, start, end, local, TypeTransform.POSITION, Axis.ALL));
 
     /// <summary>
     /// Lerps the position of an object. Supported types are: Transform, RectTransform
@@ -820,10 +793,7 @@ public class Lerp : MonoBehaviour
     /// <param name="local">If position should be local or global</param>
     /// <returns>The lerp</returns>
     public static ILerp Position<T>(T transform, float time, Vector3 end, bool local = false)
-    {
-        var lerp = Create(transform, time, end, local, TypeTransform.POSITION, Axis.ALL);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, end, local, TypeTransform.POSITION, Axis.ALL));
 
     /// <summary>
     /// Lerps the position of an object on an axis
@@ -837,10 +807,7 @@ public class Lerp : MonoBehaviour
     /// <param name="local">If position should be local or global</param>
     /// <returns>The lerp</returns>
     public static ILerp Position<T>(T transform, float time, float start, float end, Axis axis, bool local = false)
-    {
-        var lerp = Create(transform, time, start, end, local, TypeTransform.POSITION, axis);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, start, end, local, TypeTransform.POSITION, axis));
 
     /// <summary>
     /// Lerps the position of an object on an axis
@@ -853,10 +820,7 @@ public class Lerp : MonoBehaviour
     /// <param name="local">If position should be local or global</param>
     /// <returns>The lerp</returns>
     public static ILerp Position<T>(T transform, float time, float end, Axis axis, bool local = false)
-    {
-        var lerp = Create(transform, time, end, local, TypeTransform.POSITION, axis);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, end, local, TypeTransform.POSITION, axis));
     #endregion
     #region ROTATION
     /// <summary>
@@ -868,10 +832,7 @@ public class Lerp : MonoBehaviour
     /// <param name="end">The end rotation</param>
     /// <returns>The lerp</returns>
     public static ILerp Rotation<T>(T transform, float time, Quaternion start, Quaternion end, bool local = false)
-    {
-        var lerp = Create(transform, time, start, end, local, TypeTransform.ROTATION, Axis.ALL);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, start, end, local, TypeTransform.ROTATION, Axis.ALL));
 
     /// <summary>
     /// Lerps the rotation of an object. Supported types are: Transform, RectTransform
@@ -881,10 +842,7 @@ public class Lerp : MonoBehaviour
     /// <param name="end">The end rotation</param>
     /// <returns>The lerp</returns>
     public static ILerp Rotation<T>(T transform, float time, Quaternion end, bool local = false)
-    {
-        var lerp = Create(transform, time, end, local, TypeTransform.ROTATION, Axis.ALL);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, end, local, TypeTransform.ROTATION, Axis.ALL));
 
     /// <summary>
     /// Lerps the euler angles of an object. Supported types are: Transform, RectTransform
@@ -895,10 +853,7 @@ public class Lerp : MonoBehaviour
     /// <param name="end">The end euler angles</param>
     /// <returns>The lerp</returns>
     public static ILerp Euler<T>(T transform, float time, Vector3 start, Vector3 end, bool local = false)
-    {
-        var lerp = Create(transform, time, start, end, local, TypeTransform.EULER, Axis.ALL);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, start, end, local, TypeTransform.EULER, Axis.ALL));
 
     /// <summary>
     /// Lerps the euler angles of an object. Supported types are: Transform, RectTransform
@@ -908,10 +863,7 @@ public class Lerp : MonoBehaviour
     /// <param name="end">The end euler angles</param>
     /// <returns>The lerp</returns>
     public static ILerp Euler<T>(T transform, float time, Vector3 end, bool local = false)
-    {
-        var lerp = Create(transform, time, end, local, TypeTransform.EULER, Axis.ALL);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, end, local, TypeTransform.EULER, Axis.ALL));
 
     /// <summary>
     /// Lerps the euler angles of an object, on an axis
@@ -925,10 +877,7 @@ public class Lerp : MonoBehaviour
     /// <param name="local">If local euler or global</param>
     /// <returns>The lerp</returns>
     public static ILerp Euler<T>(T transform, float time, float start, float end, Axis axis, bool local = false)
-    {
-        var lerp = Create(transform, time, start, end, local, TypeTransform.EULER, axis);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, start, end, local, TypeTransform.EULER, axis));
 
     /// <summary>
     /// Lerps the euler angles of an object, on an axis
@@ -941,10 +890,7 @@ public class Lerp : MonoBehaviour
     /// <param name="local">If local euler or global</param>
     /// <returns>The lerp</returns>
     public static ILerp Euler<T>(T transform, float time, float end, Axis axis, bool local = false)
-    {
-        var lerp = Create(transform, time, end, local, TypeTransform.EULER, axis);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, end, local, TypeTransform.EULER, axis));
     #endregion
     #region SCALE
     /// <summary>
@@ -957,10 +903,7 @@ public class Lerp : MonoBehaviour
     /// <param name="end">The end scale</param>
     /// <returns>The lerp</returns>
     public static ILerp Scale<T>(T transform, float time, Vector3 start, Vector3 end)
-    {
-        var lerp = Create(transform, time, start, end, false, TypeTransform.SCALE, Axis.ALL);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, start, end, false, TypeTransform.SCALE, Axis.ALL));
 
     /// <summary>
     /// Lerps the scale of an object. Supported types are: Transform, RectTransform
@@ -971,10 +914,7 @@ public class Lerp : MonoBehaviour
     /// <param name="end">The end scale</param>
     /// <returns>The lerp</returns>
     public static ILerp Scale<T>(T transform, float time, Vector3 end)
-    {
-        var lerp = Create(transform, time, end, false, TypeTransform.SCALE, Axis.ALL);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, end, false, TypeTransform.SCALE, Axis.ALL));
 
     /// <summary>
     /// Lerps the scale of an object, on an axis
@@ -986,10 +926,7 @@ public class Lerp : MonoBehaviour
     /// <param name="end">End value</param>
     /// <returns>The lerp</returns>
     public static ILerp Scale<T>(T transform, float time, float start, float end, Axis axis)
-    {
-        var lerp = Create(transform, time, start, end, false, TypeTransform.SCALE, axis);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, start, end, false, TypeTransform.SCALE, axis));
 
     /// <summary>
     /// Lerps the scale of an object, on an axis
@@ -1000,10 +937,7 @@ public class Lerp : MonoBehaviour
     /// <param name="end">End value</param>
     /// <returns>The lerp</returns>
     public static ILerp Scale<T>(T transform, float time, float end, Axis axis)
-    {
-        var lerp = Create(transform, time, end, false, TypeTransform.SCALE, axis);
-        return Run(lerp);
-    }
+        => Run(Create(transform, time, end, false, TypeTransform.SCALE, axis));
     #endregion
     #region COLOR
     /// <summary>
@@ -1015,10 +949,7 @@ public class Lerp : MonoBehaviour
     /// <param name="end">The end color</param>
     /// <returns>The lerp</returns>
     public static ILerp Color<T>(T graphic, float time, Color start, Color end)
-    {
-        var lerp = Create(graphic, time, start, end, TypeGraphic.COLOR);
-        return Run(lerp);
-    }
+        => Run(Create(graphic, time, start, end, TypeGraphic.COLOR));
 
     /// <summary>
     /// Lerps the color of a graphic element. Supported types are Graphic, SpriteRenderer, TMP_Text
@@ -1028,10 +959,7 @@ public class Lerp : MonoBehaviour
     /// <param name="end">The end color</param>
     /// <returns>The lerp</returns>
     public static ILerp Color<T>(T graphic, float time, Color end)
-    {
-        var lerp = Create(graphic, time, end, TypeGraphic.COLOR);
-        return Run(lerp);
-    }
+        => Run(Create(graphic, time, end, TypeGraphic.COLOR));
     #endregion
     #region ALPHA
     /// <summary>
@@ -1043,10 +971,7 @@ public class Lerp : MonoBehaviour
     /// <param name="end">The end alpha</param>
     /// <returns>The lerp</returns>
     public static ILerp Alpha<T>(T graphic, float time, float start, float end)
-    {
-        var lerp = Create(graphic, time, start, end, TypeGraphic.ALPHA);
-        return Run(lerp);
-    }
+        => Run(Create(graphic, time, start, end, TypeGraphic.ALPHA));
 
     /// <summary>
     /// Lerps the alpha of a graphic element. Supported types are Graphic, SpriteRenderer, TMP_Text
@@ -1056,10 +981,7 @@ public class Lerp : MonoBehaviour
     /// <param name="end">The end alpha</param>
     /// <returns>The lerp</returns>
     public static ILerp Alpha<T>(T graphic, float time, float end)
-    {
-        var lerp = Create(graphic, time, end, TypeGraphic.ALPHA);
-        return Run(lerp);
-    }
+        => Run(Create(graphic, time, end, TypeGraphic.ALPHA));
     #endregion
 }
 #endregion

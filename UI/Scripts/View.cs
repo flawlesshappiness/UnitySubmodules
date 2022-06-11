@@ -13,7 +13,7 @@ public abstract class View : MonoBehaviourExtended
 
     private IEnumerator CloseCr(float time)
     {
-        yield return Lerp.Alpha(CanvasGroup, time, 0f).GetEnumerator();
+        yield return Lerp.Alpha(CanvasGroup, time, 0f).GetCoroutine();
         Destroy(gameObject);
     }
 
