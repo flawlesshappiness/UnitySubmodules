@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeightedRandomizer<T>
+public class WeightedRandom<T>
 {
     private List<Element<T>> elements = new List<Element<T>>();
     private float max_weight = 0f;
@@ -19,7 +19,7 @@ public class WeightedRandomizer<T>
         }
     }
 
-    public WeightedRandomizer(List<Element<T>> elements = null)
+    public WeightedRandom(List<Element<T>> elements = null)
     {
         elements = new List<Element<T>>();
 

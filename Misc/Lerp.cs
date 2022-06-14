@@ -106,6 +106,18 @@ public interface ILerp
     /// </summary>
     /// <returns>The coroutine</returns>
     Coroutine GetCoroutine();
+
+    /// <summary>
+    /// Use unscaled time
+    /// </summary>
+    /// <returns>The lerp</returns>
+    ILerp UnscaledTime();
+
+    /// <summary>
+    /// Use scaled time (default)
+    /// </summary>
+    /// <returns>The lerp</returns>
+    ILerp ScaledTime();
 }
 #endregion
 #region LERP<T>
@@ -116,8 +128,11 @@ public class Lerp<T> : ILerp
     public Lerp instance;
 
     private float _time;
-    private float _timeStart;
-    private float _timeEnd;
+    private float _timeStartScaled;
+    private float _timeStartUnscaled;
+    private float _timeEndScaled;
+    private float _timeEndUnscaled;
+    private bool _use_unscaled_time;
 
     private T _valueStart;
     private T _valueEnd;
@@ -130,6 +145,10 @@ public class Lerp<T> : ILerp
     private Func<float, float> _funcCurve;
     public Action<T> onApply;
     public Action onEnd;
+
+    private float TimeCurrent { get { return _use_unscaled_time ? Time.unscaledTime : Time.time; } }
+    private float TimeStart { get { return _use_unscaled_time ? _timeStartUnscaled : _timeStartScaled; } }
+    private float TimeEnd { get { return _use_unscaled_time ? _timeEndUnscaled : _timeEndScaled; } }
 
     // Loop
     private int _loops = 0;
@@ -148,8 +167,10 @@ public class Lerp<T> : ILerp
     public Lerp(float time, T start, T end, Func<T, T, float, T> funcLerp = null)
     {
         _time = time;
-        _timeStart = GetTime();
-        _timeEnd = _timeStart + _time;
+        _timeStartScaled = Time.time;
+        _timeStartUnscaled = Time.unscaledTime;
+        _timeEndScaled = _timeStartScaled + _time;
+        _timeEndUnscaled = _timeStartUnscaled + _time;
         _valueStart = start;
         _valueEnd = end;
 
@@ -185,8 +206,10 @@ public class Lerp<T> : ILerp
     /// </summary>
     public void Restart()
     {
-        _timeStart = GetTime();
-        _timeEnd = _timeStart + _time;
+        _timeStartScaled = Time.time;
+        _timeStartUnscaled = Time.unscaledTime;
+        _timeEndScaled = _timeStartScaled + _time;
+        _timeEndUnscaled = _timeStartUnscaled + _time;
 
         if (_oscillate)
         {
@@ -213,7 +236,7 @@ public class Lerp<T> : ILerp
     /// <returns>The time percentage</returns>
     float TimePercentage()
     {
-        return (GetTime() - _timeStart) / (_timeEnd - _timeStart);
+        return (TimeCurrent - TimeStart) / (TimeEnd - TimeStart);
     }
 
     /// <summary>
@@ -222,7 +245,7 @@ public class Lerp<T> : ILerp
     /// <returns>True if has ended and is not looping, else false</returns>
     public bool HasEnded()
     {
-        bool timeFinished = GetTime() >= _timeEnd;
+        bool timeFinished = TimeCurrent >= TimeEnd;
         if (timeFinished && _loops != 0)
         {
             if(_loops > 0) _loops--;
@@ -242,26 +265,19 @@ public class Lerp<T> : ILerp
         return !_connected || (_connection != null && _connection.activeInHierarchy);
     }
 
-    /// <summary>
-    /// Gets the current time
-    /// </summary>
-    /// <returns>The time</returns>
-    float GetTime()
-    {
-        return Time.time;
-    }
-
     #region INTERFACE FUNCTIONS
     public void Apply()
     {
-        if (GetTime() < _timeStart) return; // Lerp hasn't started yet
+        if (TimeCurrent < TimeStart) return; // Lerp hasn't started yet
         if (!IsObjectActive()) return; // Object is inactive/inexistent
         onApply?.Invoke(GetLerp());
     }
 
     public void End()
     {
-        _timeEnd = GetTime(); // Set the end time to the current time
+        // Set the end time to the current time
+        _timeEndScaled = Time.time;
+        _timeEndUnscaled = Time.unscaledTime;
 
         if (IsObjectActive())
         {
@@ -313,15 +329,19 @@ public class Lerp<T> : ILerp
     public ILerp Delay(float time)
     {
         _time += time;
-        _timeStart += time;
-        _timeEnd += time;
+        _timeStartScaled += time;
+        _timeStartUnscaled += time;
+        _timeEndScaled += time;
+        _timeEndUnscaled += time;
         return this;
     }
 
     public ILerp Reset()
     {
-        _timeStart = GetTime();
-        _timeEnd = _timeStart + _time;
+        _timeStartScaled = Time.time;
+        _timeStartUnscaled = Time.unscaledTime;
+        _timeEndScaled = _timeStartScaled + _time;
+        _timeEndUnscaled = _timeStartUnscaled + _time;
         return this;
     }
 
@@ -339,6 +359,18 @@ public class Lerp<T> : ILerp
     }
 
     public Coroutine GetCoroutine() => coroutine;
+
+    public ILerp UnscaledTime()
+    {
+        _use_unscaled_time = true;
+        return this;
+    }
+
+    public ILerp ScaledTime()
+    {
+        _use_unscaled_time = false;
+        return this;
+    }
     #endregion
 }
 #endregion
