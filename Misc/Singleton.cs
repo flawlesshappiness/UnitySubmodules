@@ -5,6 +5,11 @@ public abstract class Singleton : MonoBehaviour
 {
     private static Dictionary<System.Type, Singleton> _singletons = new Dictionary<System.Type, Singleton>();
 
+    public static void EnsureExistence<T>() where T : Singleton
+    {
+        var singleton = Instance<T>();
+    }
+
     private static T CreateInstance<T>() where T : Singleton
     {
         var type = typeof(T);
@@ -23,5 +28,5 @@ public abstract class Singleton : MonoBehaviour
             (T)_singletons[type] : CreateInstance<T>();
     }
 
-    public virtual void Initialize() { }
+    protected virtual void Initialize() { }
 }

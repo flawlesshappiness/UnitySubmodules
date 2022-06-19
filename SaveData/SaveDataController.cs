@@ -7,7 +7,7 @@ using UnityEngine;
 public class SaveDataController : Singleton
 {
     public static SaveDataController Instance { get { return Instance<SaveDataController>(); } }
-    public override void Initialize()
+    protected override void Initialize()
     {
         ConsoleController.Instance.RegisterCommand("ClearSaveData", ClearSaveData);
     }

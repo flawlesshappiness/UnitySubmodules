@@ -15,7 +15,7 @@ namespace Flawliz.Console
         private List<string> commands_prev = new List<string>();
         private int idx_commands;
 
-        public override void Initialize()
+        protected override void Initialize()
         {
             base.Initialize();
             var prefab = Resources.Load<ConsoleView>(nameof(ConsoleView));
