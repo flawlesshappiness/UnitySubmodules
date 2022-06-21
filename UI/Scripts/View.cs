@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class View : MonoBehaviourExtended
 {
     protected CanvasGroup CanvasGroup { get { return GetComponentOnce<CanvasGroup>(ComponentSearchType.THIS); } }
+    public bool Interactable { set { CanvasGroup.interactable = value; CanvasGroup.blocksRaycasts = false; } }
 
     public void Close(float time)
     {

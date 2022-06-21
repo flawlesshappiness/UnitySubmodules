@@ -39,19 +39,6 @@ public static class CustomRectTransformExtensions {
         trans.anchorMax = aVec;
     }
 
-    public static Vector2 GetSize(this RectTransform trans)
-    {
-        return trans.rect.size;
-    }
-    public static float GetWidth(this RectTransform trans)
-    {
-        return trans.rect.width;
-    }
-    public static float GetHeight(this RectTransform trans)
-    {
-        return trans.rect.height;
-    }
-
     public static void SetPositionOfPivot(this RectTransform trans, Vector2 newPos)
     {
         trans.localPosition = new Vector3(newPos.x, newPos.y, trans.localPosition.z);
