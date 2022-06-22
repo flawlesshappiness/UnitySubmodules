@@ -43,8 +43,9 @@ public class SaveDataController : Singleton
         }
     }
 
-    public void Save<T>() where T : SaveDataObject
+    public void Save<T>() where T : SaveDataObject, new()
     {
+        var data = Get<T>();
         Save(typeof(T));
     }
 
