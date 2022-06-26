@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Flawliz.Console
 {
@@ -23,43 +24,22 @@ namespace Flawliz.Console
             View.SetVisible(false);
             DontDestroyOnLoad(View.gameObject);
             VisibleView = false;
-        }
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.Backslash))
-            {
-                ToggleView();
-            }
-
-            if (!VisibleView)
-            {
-                return;
-            }
-
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                TryExecuteCommand();
-            }
-
-            if (Input.GetKeyDown(KeyCode.Tab))
-            {
-                AutofillSuggestion();
-            }
-
-            if (Input.GetKeyUp(KeyCode.UpArrow))
-            {
-                SetCommandIndex(idx_commands - 1);
-            }
-
-            if (Input.GetKeyUp(KeyCode.DownArrow))
-            {
-                SetCommandIndex(idx_commands + 1);
-            }
+            // Input
+            var control = new ConsoleControls();
+            var actions = control.Actions;
+            actions.Toggle.started += c => ToggleView();
+            actions.Enter.started += c => TryExecuteCommand();
+            actions.Autofill.started += c => AutofillSuggestion();
+            actions.Up.started += c => SetCommandIndex(idx_commands - 1);
+            actions.Down.started += c => SetCommandIndex(idx_commands + 1);
+            control.Enable();
         }
 
         private void TryExecuteCommand()
         {
+            if (!VisibleView) return;
+
             var input = View.Input;
             var args = input.Split(' ');
             if (commands.ContainsKey(input))
@@ -97,6 +77,8 @@ namespace Flawliz.Console
 
         private void AutofillSuggestion()
         {
+            if (!VisibleView) return;
+
             var suggestion = GetSuggestion(View.Input);
             if (!string.IsNullOrEmpty(suggestion))
             {
@@ -106,6 +88,8 @@ namespace Flawliz.Console
 
         private void SetCommandIndex(int idx)
         {
+            if (!VisibleView) return;
+
             idx_commands = Mathf.Clamp(idx, 0, commands_prev.Count - 1);
             if(commands_prev.Count > 0)
             {
