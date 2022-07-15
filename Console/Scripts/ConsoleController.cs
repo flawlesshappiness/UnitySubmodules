@@ -9,6 +9,9 @@ namespace Flawliz.Console
     public class ConsoleController : Singleton
     {
         public static ConsoleController Instance { get { return Instance<ConsoleController>(); } }
+
+        public event System.Action<bool> onToggle;
+
         private ConsoleView View { get; set; }
         private bool VisibleView { get; set; }
 
@@ -59,6 +62,11 @@ namespace Flawliz.Console
             View.FocusInputField();
         }
 
+        public void Log(string msg)
+        {
+            View.WriteMessage("", msg);
+        }
+
         public void LogError(string msg)
         {
             View.WriteMessage("ERROR", msg);
@@ -68,6 +76,7 @@ namespace Flawliz.Console
         {
             VisibleView = !VisibleView;
             View.SetVisible(VisibleView);
+            onToggle?.Invoke(VisibleView);
         }
 
         public string GetSuggestion(string input)
