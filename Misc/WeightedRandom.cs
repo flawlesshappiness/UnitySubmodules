@@ -6,6 +6,8 @@ public class WeightedRandom<T>
 {
     private List<Element<T>> elements = new List<Element<T>>();
     private float max_weight = 0f;
+    
+    public int Count { get { return elements.Count; } }
 
     public class Element<T>
     {
