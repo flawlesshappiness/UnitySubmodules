@@ -20,4 +20,10 @@ public static class CustomTransformExtensions
     {
         return transform.DirectionTo(target.position);
     }
+
+    public static void SetGlobalScale(this Transform transform, Vector3 scale)
+    {
+        transform.localScale = Vector3.one;
+        transform.localScale = new Vector3(scale.x / transform.lossyScale.x, scale.y / transform.lossyScale.y, scale.z / transform.lossyScale.z);
+    }
 }
