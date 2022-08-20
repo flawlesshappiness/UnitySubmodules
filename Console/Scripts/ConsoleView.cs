@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -16,6 +17,8 @@ namespace Flawliz.Console
         public string Autofill { set { tmp_autofill.text = value; } }
         public string Input { get { return input.text; } set { input.text = value; } }
 
+        private List<ConsoleElement> elements = new List<ConsoleElement>();
+
         private void Start()
         {
             element.gameObject.SetActive(false);
@@ -24,9 +27,7 @@ namespace Flawliz.Console
 
         public void SetVisible(bool visible)
         {
-            cvg.alpha = visible ? 1 : 0;
-            cvg.blocksRaycasts = visible;
-            cvg.interactable = visible;
+            gameObject.SetActive(visible);
 
             if (visible)
             {
@@ -53,6 +54,20 @@ namespace Flawliz.Console
             e.gameObject.SetActive(true);
             e.InputText = input;
             e.OutputText = output;
+            elements.Add(e);
+        }
+
+        public void SetPreviousOutput(string output)
+        {
+            if (elements.Count == 0) return;
+            var e = elements[elements.Count - 1];
+            e.OutputText = output;
+        }
+
+        public void ClearElements()
+        {
+            elements.ForEach(e => Destroy(e.gameObject));
+            elements.Clear();
         }
 
         private void OnInputValueChanged(string value)

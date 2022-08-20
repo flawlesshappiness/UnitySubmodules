@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 namespace Flawliz.Console
@@ -37,6 +38,9 @@ namespace Flawliz.Console
             actions.Up.started += c => SetCommandIndex(idx_commands - 1);
             actions.Down.started += c => SetCommandIndex(idx_commands + 1);
             control.Enable();
+
+            // Commands
+            RegisterCommand("Clear", View.ClearElements);
         }
 
         private void TryExecuteCommand()
@@ -47,8 +51,8 @@ namespace Flawliz.Console
             var args = input.Split(' ');
             if (commands.ContainsKey(input))
             {
-                commands[args[0]].Execute(args);
                 View.WriteMessage(string.Format("> {0}", input), "");
+                commands[args[0]].Execute(args);
             }
             else
             {
@@ -70,6 +74,11 @@ namespace Flawliz.Console
         public void LogError(string msg)
         {
             View.WriteMessage("ERROR", msg);
+        }
+
+        public void LogOutput(string output)
+        {
+            View.SetPreviousOutput(output);
         }
 
         private void ToggleView()

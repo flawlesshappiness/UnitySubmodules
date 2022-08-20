@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,6 +11,8 @@ public class CreateViewWindow : EditorWindow
 
     private const string EDITOR_PREFS_VIEW = "GeneratedViewAsset";
 
+    private const int HEIGHT = 60;
+
     [MenuItem("Assets/Create/UI/View", false, 1)]
     public static void ShowWinow()
     {
@@ -19,24 +22,59 @@ public class CreateViewWindow : EditorWindow
             return;
         }
 
-        window = GetWindow<CreateViewWindow>();
+        var rect = EditorGUIUtility.GetMainWindowPosition();
+
+        window = CreateInstance<CreateViewWindow>();
+        window.ShowPopup();
         window.titleContent = new GUIContent("Create View");
-        window.minSize = new Vector2(250, 60);
+
+        window.minSize = new Vector2(rect.width * 0.5f, HEIGHT);
         window.maxSize = window.minSize;
+
+        var x = rect.position.x + (rect.width * 0.5f) - (window.position.width * 0.5f);
+        var y = rect.position.y + (rect.height * 0.5f) - (window.position.height * 0.5f);
+        rect.width = window.position.width;
+        rect.height = window.position.height;
+        rect.position = new Vector2(x, y);
+        window.position = rect;
+    }
+
+    private void Update()
+    {
+        if (!window.IsFocused())
+        {
+            window.Close();
+        }
     }
 
     private void OnGUI()
     {
+        var font_prev = GUI.skin.textField.fontSize;
+        GUI.skin.textField.fontSize = (int)(HEIGHT * 0.7f);
+
         GUILayout.BeginHorizontal();
-        ExtraEditorUtility.FittedLabel("Name: ");
-        view_filename = EditorGUILayout.TextField(view_filename);
+        GUI.SetNextControlName("TextField");
+        view_filename = EditorGUILayout.TextField(view_filename, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
         GUILayout.EndHorizontal();
 
-        if (GUILayout.Button("Create", GUILayout.Height(40)))
+        GUI.skin.textField.fontSize = font_prev;
+
+        if (Event.current.isKey)
         {
-            TryCreateView(view_filename);
-            window.Close();
+            switch (Event.current.keyCode)
+            {
+                case KeyCode.Escape:
+                    window.Close();
+                    break;
+
+                case KeyCode.Return:
+                    window.Close();
+                    TryCreateView(view_filename);
+                    break;
+            }
         }
+
+        EditorGUI.FocusTextInControl("TextField");
     }
 
     private void TryCreateView(string name)
