@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public static class CustomParticleSystemExtensions {
@@ -25,6 +26,12 @@ public static class CustomParticleSystemExtensions {
         var c = ps.collision;
         action(c);
     }
+
+    public static void ModifyTrails(this ParticleSystem ps, System.Action<ParticleSystem.TrailModule> action)
+    {
+        var e = ps.trails;
+        action(e);
+    }
 }
 
 public class ParticleSystemDuplicate
@@ -33,6 +40,7 @@ public class ParticleSystemDuplicate
     private ParticleSystem.MainModule mm;
     private ParticleSystem.EmissionModule em;
     private ParticleSystem.CollisionModule cm;
+    private ParticleSystem.TrailModule tm;
 
     public ParticleSystemDuplicate(ParticleSystem ps)
     {
@@ -40,6 +48,7 @@ public class ParticleSystemDuplicate
         this.mm = ps.main;
         this.em = ps.emission;
         this.cm = ps.collision;
+        this.tm = ps.trails;
     }
 
     public ParticleSystemDuplicate Play()
@@ -117,6 +126,12 @@ public class ParticleSystemDuplicate
     public ParticleSystemDuplicate ModifySystem(System.Action<ParticleSystem> action)
     {
         action(ps);
+        return this;
+    }
+
+    public ParticleSystemDuplicate ModifyTrails(System.Action<ParticleSystem.TrailModule> action)
+    {
+        action(tm);
         return this;
     }
 }
