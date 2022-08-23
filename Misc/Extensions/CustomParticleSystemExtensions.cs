@@ -36,7 +36,7 @@ public static class CustomParticleSystemExtensions {
 
 public class ParticleSystemDuplicate
 {
-    private ParticleSystem ps;
+    public ParticleSystem ps;
     private ParticleSystem.MainModule mm;
     private ParticleSystem.EmissionModule em;
     private ParticleSystem.CollisionModule cm;
