@@ -13,6 +13,7 @@ public class CreateViewWindow : EditorWindow
 
     private const int HEIGHT = 60;
 
+    [MenuItem("Create/View", false, 1)]
     [MenuItem("Assets/Create/UI/View", false, 1)]
     public static void ShowWinow()
     {
