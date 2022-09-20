@@ -13,17 +13,7 @@ namespace Flawliz.Node.Editor
         protected Vector2 offset;
         protected Vector2 drag;
 
-        protected GUIStyle style_node;
-
-        private void OnEnable()
-        {
-            style_node = new GUIStyle();
-            style_node.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1.png") as Texture2D;
-            style_node.focused.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1 on.png") as Texture2D;
-            style_node.border = new RectOffset(12, 12, 12, 12);
-        }
-
-        private void OnGUI()
+        protected virtual void OnGUI()
         {
             DrawGrid(20, 0.2f, Color.gray);
             DrawGrid(100, 0.4f, Color.gray);
@@ -62,12 +52,12 @@ namespace Flawliz.Node.Editor
 
         private void DrawNodes()
         {
-            nodes.ForEach(n => n.Draw());
+            nodes.ToList().ForEach(n => n.Draw());
         }
 
         private void DrawConnections()
         {
-            connections.ForEach(c => c.Draw());
+            connections.ToList().ForEach(c => c.Draw());
         }
 
         private void OnDrag(Vector2 delta)
@@ -95,18 +85,6 @@ namespace Flawliz.Node.Editor
                     }
                     break;
             }
-        }
-
-        protected Node AddNode(Vector2 position)
-        {
-            var node = new Node(position, style_node);
-            nodes.Add(node);
-            return node;
-        }
-
-        protected void RemoveNode(Node node)
-        {
-            nodes.Remove(node);
         }
 
         protected void RemoveAllNodes()

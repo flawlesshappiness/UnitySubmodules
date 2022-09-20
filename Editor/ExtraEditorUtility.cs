@@ -11,16 +11,6 @@ public class ExtraEditorUtility
         System.IO.Directory.CreateDirectory(path);
     }
 
-    public static void FittedLabel(string label)
-    {
-        EditorGUILayout.LabelField(label, GUILayout.Width(LabelWidth(label)));
-    }
-
-    public static float LabelWidth(string label)
-    {
-        return EditorStyles.label.CalcSize(new GUIContent(label)).x;
-    }
-
     public static Type IdentifyScriptType(string name)
     {
         Type type = null;
