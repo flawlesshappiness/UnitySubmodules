@@ -49,7 +49,7 @@ namespace Flawliz.Console
 
             var input = View.Input;
             var args = input.Split(' ');
-            if (commands.ContainsKey(input))
+            if (args.Length > 0 && commands.ContainsKey(args[0]))
             {
                 View.WriteMessage(string.Format("> {0}", input), "");
                 commands[args[0]].Execute(args);
