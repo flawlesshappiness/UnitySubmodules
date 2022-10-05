@@ -35,14 +35,30 @@ public static class GUIHelper
         return EditorStyles.label.CalcSize(new GUIContent(label)).x;
     }
 
-    public enum GUITexture { PLUS, MINUS }
+    public enum GUITexture { PLUS, MINUS, SAVE }
     public static Texture GetTexture(GUITexture type)
     {
         return type switch
         {
             GUITexture.MINUS => AssetDatabase.LoadAssetAtPath<Texture>("Assets/UnitySubmodules/Sprites/icon_minus.png"),
             GUITexture.PLUS => AssetDatabase.LoadAssetAtPath<Texture>("Assets/UnitySubmodules/Sprites/icon_plus.png"),
+            GUITexture.SAVE => AssetDatabase.LoadAssetAtPath<Texture>("Assets/UnitySubmodules/Sprites/icon_save.png"),
             _ => null
         };
+    }
+
+    public static void DrawAssetSaveButton(Object asset)
+    {
+        GUI.enabled = EditorUtility.IsDirty(asset.GetInstanceID());
+
+        GUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
+        if (GUILayout.Button(GetTexture(GUITexture.SAVE), GUILayout.Width(30), GUILayout.Height(30)))
+        {
+            AssetDatabase.SaveAssets();
+        }
+        GUILayout.EndHorizontal();
+
+        GUI.enabled = true;
     }
 }
