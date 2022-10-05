@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 
 namespace Flawliz.Node.Editor
 {
@@ -21,6 +22,7 @@ namespace Flawliz.Node.Editor
 
         public bool Selected { get; private set; }
 
+        private const int WIDTH = 300;
         private const int PADDING_X = 10;
         private const int PADDING_Y = 2;
         private const int FIELD_HEIGHT = 20;
@@ -30,7 +32,7 @@ namespace Flawliz.Node.Editor
 
         public Node(Vector2 position)
         {
-            rect = new Rect(position.x, position.y, 200, 50);
+            rect = new Rect(position.x, position.y, WIDTH, 50);
 
             style_normal = LoadStyle("builtin skins/darkskin/images/node1.png");
             style_selected = LoadStyle("builtin skins/darkskin/images/node1 on.png");
@@ -168,6 +170,24 @@ namespace Flawliz.Node.Editor
             }
         }
 
+        private class StringDropdownValue : PropertyValue<string>
+        {
+            private string[] options;
+            public StringDropdownValue(string[] options)
+            {
+                this.options = options;
+            }
+
+            public override string DrawValue(Rect rect)
+            {
+                var r = new Rect(rect.x, rect.y, rect.width, rect.height);
+                var idx = options.ToList().IndexOf(value);
+                idx = EditorGUI.Popup(r, idx, options);
+                if(idx == -1) { idx = 0; }
+                return options[idx];
+            }
+        }
+
         private class IntValue : PropertyValue<int>
         {
             public override int DrawValue(Rect rect)
@@ -204,6 +224,14 @@ namespace Flawliz.Node.Editor
         public PropertyValue<string> AddProperty(string label, string value, bool enabled, System.Action<string> onValueChanged = null)
         {
             var property = new StringValue { label = label, value = value, enabled = enabled };
+            property.onValueChanged += onValueChanged;
+            properties.Add(property);
+            return property;
+        }
+
+        public PropertyValue<string> AddProperty(string label, string value, string[] options, bool enabled, System.Action<string> onValueChanged = null)
+        {
+            var property = new StringDropdownValue(options) { label = label, value = value, enabled = enabled };
             property.onValueChanged += onValueChanged;
             properties.Add(property);
             return property;
