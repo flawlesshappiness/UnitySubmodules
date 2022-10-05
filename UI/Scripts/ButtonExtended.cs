@@ -9,6 +9,8 @@ public class ButtonExtended : Button
     protected bool Selected { get; set; }
     protected bool Hovered { get; set; }
 
+    private bool _select_on_hover;
+
     private void Update()
     {
         if (Application.isPlaying)
@@ -53,5 +55,27 @@ public class ButtonExtended : Button
         }
 
         Hovered = false;
+    }
+
+    public void SetSelectOnHover(bool select)
+    {
+        if(select && !_select_on_hover)
+        {
+            OnHoverChanged += SelectOnHover;
+            _select_on_hover = true;
+        }
+        else if(!select && _select_on_hover)
+        {
+            OnHoverChanged -= SelectOnHover;
+            _select_on_hover = false;
+        }
+    }
+
+    private void SelectOnHover(bool hovered)
+    {
+        if (hovered)
+        {
+            EventSystem.current.SetSelectedGameObject(gameObject);
+        }
     }
 }
