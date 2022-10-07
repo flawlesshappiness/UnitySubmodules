@@ -9,46 +9,20 @@ public static class CustomParticleSystemExtensions {
         return new ParticleSystemDuplicate(ps);
     }
 
-    public static void ModifyEmission(this ParticleSystem ps, System.Action<ParticleSystem.EmissionModule> action)
-    {
-        var e = ps.emission;
-        action(e);
-    }
-
-    public static void ModifyMain(this ParticleSystem ps, System.Action<ParticleSystem.MainModule> action)
-    {
-        var m = ps.main;
-        action(m);
-    }
-
-    public static void ModifyCollision(this ParticleSystem ps, System.Action<ParticleSystem.CollisionModule> action)
-    {
-        var c = ps.collision;
-        action(c);
-    }
-
-    public static void ModifyTrails(this ParticleSystem ps, System.Action<ParticleSystem.TrailModule> action)
-    {
-        var e = ps.trails;
-        action(e);
-    }
+    public static void ModifyEmission(this ParticleSystem ps, System.Action<ParticleSystem.EmissionModule> action) => action(ps.emission);
+    public static void ModifyMain(this ParticleSystem ps, System.Action<ParticleSystem.MainModule> action) => action(ps.main);
+    public static void ModifyCollision(this ParticleSystem ps, System.Action<ParticleSystem.CollisionModule> action) => action(ps.collision);
+    public static void ModifyTrails(this ParticleSystem ps, System.Action<ParticleSystem.TrailModule> action) => action(ps.trails);
+    public static void ModifyShape(this ParticleSystem ps, System.Action<ParticleSystem.ShapeModule> action) => action(ps.shape);
 }
 
 public class ParticleSystemDuplicate
 {
     public ParticleSystem ps;
-    private ParticleSystem.MainModule mm;
-    private ParticleSystem.EmissionModule em;
-    private ParticleSystem.CollisionModule cm;
-    private ParticleSystem.TrailModule tm;
 
     public ParticleSystemDuplicate(ParticleSystem ps)
     {
         this.ps = Object.Instantiate(ps.gameObject).GetComponent<ParticleSystem>();
-        this.mm = ps.main;
-        this.em = ps.emission;
-        this.cm = ps.collision;
-        this.tm = ps.trails;
     }
 
     public ParticleSystemDuplicate Play()
@@ -102,36 +76,6 @@ public class ParticleSystemDuplicate
     public ParticleSystemDuplicate Destroy(float time)
     {
         Object.Destroy(ps.gameObject, time);
-        return this;
-    }
-
-    public ParticleSystemDuplicate ModifyEmission(System.Action<ParticleSystem.EmissionModule> action)
-    {
-        action(em);
-        return this;
-    }
-
-    public ParticleSystemDuplicate ModifyMain(System.Action<ParticleSystem.MainModule> action)
-    {
-        action(mm);
-        return this;
-    }
-
-    public ParticleSystemDuplicate ModifyCollision(System.Action<ParticleSystem.CollisionModule> action)
-    {
-        action(cm);
-        return this;
-    }
-
-    public ParticleSystemDuplicate ModifySystem(System.Action<ParticleSystem> action)
-    {
-        action(ps);
-        return this;
-    }
-
-    public ParticleSystemDuplicate ModifyTrails(System.Action<ParticleSystem.TrailModule> action)
-    {
-        action(tm);
         return this;
     }
 }
