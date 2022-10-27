@@ -17,7 +17,7 @@ namespace Flawliz.Console
         private bool VisibleView { get; set; }
 
         private Dictionary<string, Command> commands = new Dictionary<string, Command>();
-        private List<string> commands_prev = new List<string>();
+        private List<string> commands_queue = new List<string>();
         private int idx_commands;
 
         protected override void Initialize()
@@ -59,8 +59,8 @@ namespace Flawliz.Console
                 View.WriteMessage("Invalid command:", string.Format("{0}", input));
             }
 
-            commands_prev.Add(input);
-            idx_commands = commands_prev.Count - 1;
+            commands_queue.Add(input);
+            idx_commands = commands_queue.Count;
 
             View.Input = "";
             View.FocusInputField();
@@ -108,10 +108,10 @@ namespace Flawliz.Console
         {
             if (!VisibleView) return;
 
-            idx_commands = Mathf.Clamp(idx, 0, commands_prev.Count - 1);
-            if(commands_prev.Count > 0)
+            idx_commands = Mathf.Clamp(idx, 0, commands_queue.Count - 1);
+            if(commands_queue.Count > 0)
             {
-                View.SetInput(commands_prev[idx_commands]);
+                View.SetInput(commands_queue[idx_commands]);
             }
         }
 

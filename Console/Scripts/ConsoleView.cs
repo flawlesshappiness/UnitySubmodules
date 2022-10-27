@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -45,7 +44,13 @@ namespace Flawliz.Console
         public void SetInput(string input)
         {
             this.input.text = input;
-            this.input.caretPosition = input.Length;
+
+            StartCoroutine(Cr());
+            IEnumerator Cr()
+            {
+                yield return null;
+                this.input.caretPosition = input.Length;
+            }
         }
 
         public void WriteMessage(string input, string output)
