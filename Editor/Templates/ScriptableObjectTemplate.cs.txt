@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "#SCRIPTNAME#", menuName = "Game/#SCRIPTNAME#", order = 1)]
+[CreateAssetMenu(fileName = nameof(#SCRIPTNAME#), menuName = "Game/" + nameof(#SCRIPTNAME#), order = 1)]
 public class #SCRIPTNAME# : ScriptableObject
 {
     

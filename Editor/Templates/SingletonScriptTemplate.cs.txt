@@ -1,0 +1,6 @@
+using UnityEngine;
+
+public class #SCRIPTNAME# : Singleton
+{
+    public static #SCRIPTNAME# Instance { get { return Instance<#SCRIPTNAME#>(); } }
+}
