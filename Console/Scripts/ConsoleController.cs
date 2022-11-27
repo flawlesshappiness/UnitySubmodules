@@ -10,7 +10,7 @@ namespace Flawliz.Console
     public class ConsoleController : Singleton
     {
         public static ConsoleController Instance { get { return Instance<ConsoleController>(); } }
-
+        public bool Enabled { get; set; }
         public event System.Action<bool> onToggle;
 
         private ConsoleView View { get; set; }
@@ -83,6 +83,8 @@ namespace Flawliz.Console
 
         private void ToggleView()
         {
+            if (!Enabled) return;
+
             VisibleView = !VisibleView;
             View.SetVisible(VisibleView);
             onToggle?.Invoke(VisibleView);
