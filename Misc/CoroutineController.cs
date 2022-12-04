@@ -35,9 +35,10 @@ public class CoroutineController : MonoBehaviour
 
         IEnumerator RunCr()
         {
+            c.Completed = false;
             yield return enumerator;
+            c.Completed = true;
             coroutines.Remove(c.ID);
-            c.OnEndAction?.Invoke();
         }
     }
 
@@ -49,7 +50,7 @@ public class CoroutineController : MonoBehaviour
         }
     }
 
-    private void Kill(string id)
+    public void Kill(string id)
     {
         if (coroutines.ContainsKey(id))
         {
@@ -58,27 +59,28 @@ public class CoroutineController : MonoBehaviour
 
             if(_c.Coroutine != null)
             {
+                _c.Completed = true;
                 _c.Connection.StopCoroutine(_c.Coroutine);
             }
         }
     }
 
-    public bool Has(string id)
+    public bool HasID(string id)
     {
         return coroutines.ContainsKey(id);
     }
 }
 
-public class CustomCoroutine
+public class CustomCoroutine : CustomYieldInstruction
 {
     public string ID { get; set; }
     public Coroutine Coroutine { get; set; }
     public MonoBehaviour Connection { get; set; }
-    public System.Action OnEndAction { get; private set; }
+    public bool Completed { get; set; }
 
-    public CustomCoroutine OnEnd(System.Action action)
-    {
-        OnEndAction = action;
-        return this;
-    }
+    public void Kill() => CoroutineController.Instance.Kill(ID);
+
+    // CustomYieldInstruction
+    public override bool keepWaiting => !Completed;
+
 }

@@ -1,7 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
 using UnityEngine;
+using Flawliz.Lerp;
 
 public abstract class View : MonoBehaviourExtended
 {
@@ -24,9 +23,9 @@ public abstract class View : MonoBehaviourExtended
 
     private IEnumerator CloseCr(float time)
     {
-        yield return Lerp.Alpha(CanvasGroup, time, 0f)
+        yield return Lerp.Value(time, f => CanvasGroup.alpha = Mathf.Lerp(CanvasGroup.alpha, 0f, f))
             .UnscaledTime()
-            .GetCoroutine();
+            .Connect(CanvasGroup.gameObject);
         OnClose();
     }
 
@@ -43,8 +42,8 @@ public abstract class View : MonoBehaviourExtended
         }
         else
         {
-            Lerp.Alpha(CanvasGroup, time, 0f, 1f)
-            .UnscaledTime();
+            Lerp.Value(time, f => CanvasGroup.alpha = Mathf.Lerp(0f, 1f, f))
+                .UnscaledTime();
         }
     }
 }
