@@ -14,6 +14,7 @@ namespace Flawliz.Lerp
         private LerpEnumerator enumerator;
         
         public override bool keepWaiting => coroutine.keepWaiting;
+        public bool Ended { get { return coroutine.Completed; } }
 
         private Lerp(CustomCoroutine coroutine, LerpEnumerator enumerator) 
         {
@@ -36,7 +37,7 @@ namespace Flawliz.Lerp
         public Lerp Connect(GameObject connection)
         {
             enumerator.Connection = connection;
-            enumerator.IsConnected = true;
+            enumerator.IsConnected = connection != null;
             return this;
         }
 
@@ -47,10 +48,11 @@ namespace Flawliz.Lerp
         /// </summary>
         /// <typeparam name="T">The lerp type</typeparam>
         /// <param name="lerp">The lerp</param>
-        private static Lerp Run(LerpEnumerator enumerator, string id)
+        private static Lerp Run(LerpEnumerator enumerator, string id, GameObject connection = null)
         {
             var coroutine = CoroutineController.Instance.Run(Cr(), id);
             var lerp = new Lerp(coroutine, enumerator);
+            lerp.Connect(connection);
             return lerp;
 
             IEnumerator Cr()
@@ -87,84 +89,84 @@ namespace Flawliz.Lerp
 
         // Position
         public static Lerp Position(Transform target, float duration, Vector3 start, Vector3 end) =>
-            Run(LerpEnumerator.Position(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Position(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp Position(Transform target, float duration, Vector3 end) =>
-            Run(LerpEnumerator.Position(target, duration, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Position(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         // Local Position
         public static Lerp LocalPosition(Transform target, float duration, Vector3 start, Vector3 end) =>
-            Run(LerpEnumerator.LocalPosition(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.LocalPosition(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp LocalPosition(Transform target, float duration, Vector3 end) =>
-            Run(LerpEnumerator.LocalPosition(target, duration, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.LocalPosition(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         // Rotation
         public static Lerp Rotation(Transform target, float duration, Quaternion start, Quaternion end) =>
-            Run(LerpEnumerator.Rotation(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Rotation(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp Rotation(Transform target, float duration, Quaternion end) =>
-            Run(LerpEnumerator.Rotation(target, duration, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Rotation(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         // Local Rotation
         public static Lerp LocalRotation(Transform target, float duration, Quaternion start, Quaternion end) =>
-            Run(LerpEnumerator.LocalRotation(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.LocalRotation(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp LocalRotation(Transform target, float duration, Quaternion end) =>
-            Run(LerpEnumerator.LocalRotation(target, duration, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.LocalRotation(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         // Euler
         public static Lerp Euler(Transform target, float duration, Vector3 start, Vector3 end) =>
-            Run(LerpEnumerator.Euler(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Euler(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp LocalEuler(Transform target, float duration, Vector3 start, Vector3 end) =>
-            Run(LerpEnumerator.LocalEuler(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.LocalEuler(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         // Local Scale
         public static Lerp LocalScale(Transform target, float duration, Vector3 start, Vector3 end) =>
-            Run(LerpEnumerator.LocalScale(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.LocalScale(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp LocalScale(Transform target, float duration, Vector3 end) =>
-            Run(LerpEnumerator.LocalScale(target, duration, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.LocalScale(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         // Size Delta
         public static Lerp SizeDelta(RectTransform target, float duration, Vector2 start, Vector2 end) =>
-            Run(LerpEnumerator.SizeDelta(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.SizeDelta(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp SizeDelta(RectTransform target, float duration, Vector2 end) =>
-            Run(LerpEnumerator.SizeDelta(target, duration, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.SizeDelta(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         // Anchored Position
         public static Lerp AnchoredPosition(RectTransform target, float duration, Vector2 start, Vector2 end) =>
-            Run(LerpEnumerator.AnchoredPosition(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.AnchoredPosition(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp AnchoredPosition(RectTransform target, float duration, Vector2 end) =>
-            Run(LerpEnumerator.AnchoredPosition(target, duration, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.AnchoredPosition(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         // Color
         public static Lerp Color(Graphic target, float duration, Color start, Color end) =>
-            Run(LerpEnumerator.Color(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Color(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp Color(Graphic target, float duration, Color end) =>
-            Run(LerpEnumerator.Color(target, duration, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Color(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp Color(SpriteRenderer target, float duration, Color start, Color end) =>
-            Run(LerpEnumerator.Color(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Color(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp Color(SpriteRenderer target, float duration, Color end) =>
-            Run(LerpEnumerator.Color(target, duration, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Color(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         // Alpha
         public static Lerp Alpha(Graphic target, float duration, float start, float end) =>
-            Run(LerpEnumerator.Alpha(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Alpha(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp Alpha(Graphic target, float duration, float end) =>
-            Run(LerpEnumerator.Alpha(target, duration, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Alpha(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp Alpha(SpriteRenderer target, float duration, float start, float end) =>
-            Run(LerpEnumerator.Alpha(target, duration, start, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Alpha(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
 
         public static Lerp Alpha(SpriteRenderer target, float duration, float end) =>
-            Run(LerpEnumerator.Alpha(target, duration, end), GetID($"{GetMethodName()}", target));
+            Run(LerpEnumerator.Alpha(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
     }
 }
