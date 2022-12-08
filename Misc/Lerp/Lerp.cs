@@ -71,7 +71,6 @@ namespace Flawliz.Lerp
                 id += $"_{connection.GetInstanceID()}";
             }
 
-            Debug.Log(id);
             return id;
         }
 
