@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Runtime.CompilerServices;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,7 +7,7 @@ namespace Flawliz.Lerp
 {
     public class Lerp : CustomYieldInstruction
     {
-        private static readonly GUID guid = GUID.Generate();
+        private static readonly System.Guid guid = System.Guid.NewGuid();
 
         private CustomCoroutine coroutine;
         private LerpEnumerator enumerator;
@@ -30,14 +29,13 @@ namespace Flawliz.Lerp
 
         public Lerp Curve(AnimationCurve curve)
         {
-            enumerator.AnimationCurve = curve;
+            enumerator.Curve(curve);
             return this;
         }
 
         public Lerp Connect(GameObject connection)
         {
-            enumerator.Connection = connection;
-            enumerator.IsConnected = connection != null;
+            enumerator.Connect(connection);
             return this;
         }
 
@@ -62,7 +60,7 @@ namespace Flawliz.Lerp
             }
         }
 
-        private static string GetID(string name, Object connection = null)
+        private static string GetID(string name, UnityEngine.Object connection = null)
         {
             var id = $"{guid}_lerp_{name}";
 
@@ -84,7 +82,7 @@ namespace Flawliz.Lerp
             Run(LerpEnumerator.Value(duration, lerp_function), GetID($"{GetMethodName()}_{id}"));
 
         public static Lerp Value(float duration, System.Action<float> lerp_function) =>
-            Run(LerpEnumerator.Value(duration, lerp_function), GetID($"{GetMethodName()}_{GUID.Generate()}"));
+            Run(LerpEnumerator.Value(duration, lerp_function), GetID($"{GetMethodName()}_{System.Guid.NewGuid()}"));
 
         // Position
         public static Lerp Position(Transform target, float duration, Vector3 start, Vector3 end) =>

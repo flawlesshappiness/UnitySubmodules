@@ -8,6 +8,16 @@ public static class CustomParticleSystemExtensions {
         return new ParticleSystemDuplicate(ps);
     }
 
+    public static void SetEmissionEnabled(this ParticleSystem ps, bool enabled)
+    {
+        if (enabled && !ps.isPlaying)
+        {
+            ps.Play();
+        }
+
+        ps.ModifyEmission(m => m.enabled = enabled);
+    }
+
     public static void ModifyEmission(this ParticleSystem ps, System.Action<ParticleSystem.EmissionModule> action) => action(ps.emission);
     public static void ModifyMain(this ParticleSystem ps, System.Action<ParticleSystem.MainModule> action) => action(ps.main);
     public static void ModifyCollision(this ParticleSystem ps, System.Action<ParticleSystem.CollisionModule> action) => action(ps.collision);
