@@ -18,11 +18,25 @@ public static class CustomParticleSystemExtensions {
         ps.ModifyEmission(m => m.enabled = enabled);
     }
 
-    public static void ModifyEmission(this ParticleSystem ps, System.Action<ParticleSystem.EmissionModule> action) => action(ps.emission);
-    public static void ModifyMain(this ParticleSystem ps, System.Action<ParticleSystem.MainModule> action) => action(ps.main);
-    public static void ModifyCollision(this ParticleSystem ps, System.Action<ParticleSystem.CollisionModule> action) => action(ps.collision);
-    public static void ModifyTrails(this ParticleSystem ps, System.Action<ParticleSystem.TrailModule> action) => action(ps.trails);
-    public static void ModifyShape(this ParticleSystem ps, System.Action<ParticleSystem.ShapeModule> action) => action(ps.shape);
+    public static void ModifyEmission(this ParticleSystem ps, System.Action<ParticleSystem.EmissionModule> action, bool affectChildren = true) => ps.Modify(ps => action(ps.emission), affectChildren);
+    public static void ModifyMain(this ParticleSystem ps, System.Action<ParticleSystem.MainModule> action, bool affectChildren = true) => ps.Modify(ps => action(ps.main), affectChildren);
+    public static void ModifyCollision(this ParticleSystem ps, System.Action<ParticleSystem.CollisionModule> action, bool affectChildren = true) => ps.Modify(ps => action(ps.collision), affectChildren);
+    public static void ModifyTrails(this ParticleSystem ps, System.Action<ParticleSystem.TrailModule> action, bool affectChildren = true) => ps.Modify(ps => action(ps.trails), affectChildren);
+    public static void ModifyShape(this ParticleSystem ps, System.Action<ParticleSystem.ShapeModule> action, bool affectChildren = true) => ps.Modify(ps => action(ps.shape), affectChildren);
+    private static void Modify(this ParticleSystem ps, System.Action<ParticleSystem> action, bool affectChildren)
+    {
+        if (affectChildren)
+        {
+            foreach(var child in ps.GetComponentsInChildren<ParticleSystem>())
+            {
+                action(child);
+            }
+        }
+        else
+        {
+            action(ps);
+        }
+    }
 }
 
 public class ParticleSystemDuplicate
