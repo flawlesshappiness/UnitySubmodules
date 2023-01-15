@@ -23,9 +23,12 @@ public abstract class View : MonoBehaviourExtended
 
     private IEnumerator CloseCr(float time)
     {
-        yield return Lerp.Value(time, f => CanvasGroup.alpha = Mathf.Lerp(CanvasGroup.alpha, 0f, f))
-            .UnscaledTime()
-            .Connect(CanvasGroup.gameObject);
+        var lerp = LerpEnumerator.Value(time, f =>
+        {
+            CanvasGroup.alpha = Mathf.Lerp(CanvasGroup.alpha, 0f, f);
+        });
+        lerp.UnscaledTime = true;
+        yield return lerp;
         OnClose();
     }
 
