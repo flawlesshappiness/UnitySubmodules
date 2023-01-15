@@ -53,6 +53,11 @@ namespace Flawliz.Lerp
                     yield return null;
                 }
 
+                if (HasConnection())
+                {
+                    lerp_function(end);
+                }
+
                 bool IsUnscaledTime() => le.UnscaledTime;
                 bool IsRunning() => GetTime() < GetEndTime();
                 float GetTime() => IsUnscaledTime() ? Time.unscaledTime : Time.time;
