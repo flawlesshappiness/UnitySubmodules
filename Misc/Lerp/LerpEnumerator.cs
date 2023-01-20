@@ -48,7 +48,7 @@ namespace Flawliz.Lerp
                 {
                     var t = (GetTime() - GetStartTime()) / duration;
                     var t_curve = GetCurve().Evaluate(t);
-                    var v_lerp = Mathf.Lerp(start, end, t_curve);
+                    var v_lerp = Mathf.LerpUnclamped(start, end, t_curve);
                     lerp_function(v_lerp);
                     yield return null;
                 }
