@@ -46,6 +46,7 @@ public abstract class View : MonoBehaviourExtended
         else
         {
             Lerp.Value(time, f => CanvasGroup.alpha = Mathf.Lerp(0f, 1f, f))
+                .Connect(CanvasGroup.gameObject)
                 .UnscaledTime();
         }
     }
