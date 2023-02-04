@@ -23,7 +23,7 @@ namespace Flawliz.Lerp
 
         public Lerp UnscaledTime()
         {
-            enumerator.UnscaledTime = true;
+            enumerator.UseUnscaledTime = true;
             return this;
         }
 
@@ -165,5 +165,11 @@ namespace Flawliz.Lerp
 
         public static Lerp Alpha(SpriteRenderer target, float duration, float end) =>
             Run(LerpEnumerator.Alpha(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
+
+        public static Lerp Alpha(CanvasGroup target, float duration, float end) =>
+            Run(LerpEnumerator.Alpha(target, duration, end), GetID($"{GetMethodName()}", target), target.gameObject);
+
+        public static Lerp Alpha(CanvasGroup target, float duration, float start, float end) =>
+            Run(LerpEnumerator.Alpha(target, duration, start, end), GetID($"{GetMethodName()}", target), target.gameObject);
     }
 }

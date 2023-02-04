@@ -7,7 +7,7 @@ namespace Flawliz.Lerp
     public class LerpEnumerator : IEnumerator
     {
         private IEnumerator enumerator;
-        public bool UnscaledTime { get; set; }
+        public bool UseUnscaledTime { get; set; }
         public AnimationCurve AnimationCurve { get; set; }
         public GameObject Connection { get; set; }
         public bool IsConnected { get; set; }
@@ -27,6 +27,12 @@ namespace Flawliz.Lerp
         {
             Connection = connection;
             IsConnected = connection != null;
+            return this;
+        }
+
+        public LerpEnumerator UnscaledTime()
+        {
+            UseUnscaledTime = true;
             return this;
         }
 
@@ -58,7 +64,8 @@ namespace Flawliz.Lerp
                     lerp_function(end);
                 }
 
-                bool IsUnscaledTime() => le.UnscaledTime;
+                // Helper functions
+                bool IsUnscaledTime() => le.UseUnscaledTime;
                 bool IsRunning() => GetTime() < GetEndTime();
                 float GetTime() => IsUnscaledTime() ? Time.unscaledTime : Time.time;
                 float GetStartTime() => IsUnscaledTime() ? time_start_unscaled : time_start_scaled;
@@ -154,9 +161,8 @@ namespace Flawliz.Lerp
         public static LerpEnumerator Alpha(Graphic graphic, float duration, float start, float end)
         {
             var c = graphic.color;
-            var c_start = c.SetA(start);
-            var c_end = c.SetA(end);
-            return Color(graphic, duration, c_start, c_end);
+            return Value(duration, f => graphic.color = c.SetA(Mathf.LerpUnclamped(start, end, f)))
+                .Connect(graphic.gameObject);
         }
 
         public static LerpEnumerator Alpha(SpriteRenderer spr, float duration, float end) =>
@@ -164,9 +170,16 @@ namespace Flawliz.Lerp
         public static LerpEnumerator Alpha(SpriteRenderer spr, float duration, float start, float end)
         {
             var c = spr.color;
-            var c_start = c.SetA(start);
-            var c_end = c.SetA(end);
-            return Color(spr, duration, c_start, c_end);
+            return Value(duration, f => spr.color = c.SetA(Mathf.LerpUnclamped(start, end, f)))
+                .Connect(spr.gameObject);
+        }
+
+        public static LerpEnumerator Alpha(CanvasGroup cvg, float duration, float end) =>
+            Alpha(cvg, duration, cvg.alpha, end);
+        public static LerpEnumerator Alpha(CanvasGroup cvg, float duration, float start, float end)
+        {
+            return Value(duration, f => cvg.alpha = Mathf.LerpUnclamped(start, end, f))
+                .Connect(cvg.gameObject);
         }
     }
 }

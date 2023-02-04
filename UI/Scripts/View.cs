@@ -9,43 +9,30 @@ public abstract class View : MonoBehaviourExtended
     protected RectTransform Root { get { return GetComponentOnce<RectTransform>(ComponentSearchType.THIS); } }
     public bool Interactable { set { CanvasGroup.interactable = value; CanvasGroup.blocksRaycasts = value; } }
 
-    public void Close(float time)
+    public void Close(float duration)
     {
-        if(time == 0)
+        if(duration == 0)
         {
-            OnClose();
+            Destroy(gameObject);
         }
         else
         {
-            StartCoroutine(CloseCr(time));
+            Lerp.Alpha(CanvasGroup, duration, 0f)
+                .Connect(CanvasGroup.gameObject)
+                .UnscaledTime();
+            Destroy(gameObject, duration);
         }
     }
 
-    private IEnumerator CloseCr(float time)
+    public void Show(float duration)
     {
-        var lerp = LerpEnumerator.Value(time, f =>
-        {
-            CanvasGroup.alpha = Mathf.Lerp(CanvasGroup.alpha, 0f, f);
-        });
-        lerp.UnscaledTime = true;
-        yield return lerp;
-        OnClose();
-    }
-
-    private void OnClose()
-    {
-        Destroy(gameObject);
-    }
-
-    public void Show(float time)
-    {
-        if(time == 0)
+        if(duration == 0)
         {
             CanvasGroup.alpha = 1f;
         }
         else
         {
-            Lerp.Value(time, f => CanvasGroup.alpha = Mathf.Lerp(0f, 1f, f))
+            Lerp.Alpha(CanvasGroup, duration, 0f, 1f)
                 .Connect(CanvasGroup.gameObject)
                 .UnscaledTime();
         }
