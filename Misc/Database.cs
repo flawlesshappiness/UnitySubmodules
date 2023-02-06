@@ -12,9 +12,22 @@ public class Database : ScriptableObject
         {
             var name = type.Name;
             var db = Resources.Load<T>("Databases/" + name);
-            databases.Add(type, db);
+            if(db == null)
+            {
+                Debug.LogError($"Unable to locate database of type: {typeof(T)}");
+                return null;
+            }
+            else
+            {
+                databases.Add(type, db);
+            }
         }
 
         return databases[type] as T;
     }
+}
+
+public class Database<T> : Database
+{
+    public List<T> collection = new List<T>();
 }

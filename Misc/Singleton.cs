@@ -1,32 +1,49 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Singleton : MonoBehaviour
+public abstract class Singleton : MonoBehaviour, IComparable<Singleton>
 {
-    private static Dictionary<System.Type, Singleton> _singletons = new Dictionary<System.Type, Singleton>();
+    private static Dictionary<Type, Singleton> _singletons = new Dictionary<Type, Singleton>();
 
-    public static void EnsureExistence<T>() where T : Singleton
+    public static void CreateAllSingletons()
     {
-        var singleton = Instance<T>();
+        var singletons = ReflectiveEnumerator.GetEnumerableOfType<Singleton>();
+        foreach(var singleton in singletons)
+        {
+            var type = singleton.GetType();
+            CreateInstance(type);
+        }
+        InitializeAllSingletons();
     }
 
-    private static T CreateInstance<T>() where T : Singleton
+    private static void InitializeAllSingletons()
     {
-        var type = typeof(T);
-        var g = new GameObject(typeof(T).ToString() + " (Singleton)");
+        foreach(var singleton in _singletons.Values)
+        {
+            singleton.Initialize();
+        }
+    }
+
+    private static Singleton CreateInstance(Type type)
+    {
+        var g = new GameObject(type.Name + " (Singleton)");
         DontDestroyOnLoad(g);
-        var i = g.AddComponent<T>();
-        i.Initialize();
-        _singletons.Add(type, i);
-        return i;
+        var s = (Singleton)g.AddComponent(type);
+        _singletons.Add(type, s);
+        return s;
     }
 
     public static T Instance<T>() where T : Singleton
     {
         var type = typeof(T);
-        return _singletons.ContainsKey(type) ?
-            (T)_singletons[type] : CreateInstance<T>();
+        return (T)_singletons[type];
     }
 
     protected virtual void Initialize() { }
+
+    public int CompareTo(Singleton other)
+    {
+        return GetType().Name.CompareTo(other.GetType().Name);
+    }
 }

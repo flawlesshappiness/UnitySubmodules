@@ -52,24 +52,26 @@ namespace Flawliz.Lerp
                 var time_end_unscaled = time_start_unscaled + duration;
                 while (HasConnection() && IsRunning())
                 {
-                    var t = (GetTime() - GetStartTime()) / duration;
-                    var t_curve = GetCurve().Evaluate(t);
-                    var v_lerp = Mathf.LerpUnclamped(start, end, t_curve);
-                    lerp_function(v_lerp);
+                    var p = GetTimePerc();
+                    var v = GetLerpValue(p);
+                    lerp_function(v);
                     yield return null;
                 }
 
                 if (HasConnection())
                 {
-                    lerp_function(end);
+                    var v = GetLerpValue(1);
+                    lerp_function(v);
                 }
 
                 // Helper functions
                 bool IsUnscaledTime() => le.UseUnscaledTime;
                 bool IsRunning() => GetTime() < GetEndTime();
                 float GetTime() => IsUnscaledTime() ? Time.unscaledTime : Time.time;
+                float GetTimePerc() => (GetTime() - GetStartTime()) / duration;
                 float GetStartTime() => IsUnscaledTime() ? time_start_unscaled : time_start_scaled;
                 float GetEndTime() => IsUnscaledTime() ? time_end_unscaled : time_end_scaled;
+                float GetLerpValue(float t) => Mathf.LerpUnclamped(start, end, GetCurve().Evaluate(t));
                 bool HasConnection() => !le.IsConnected || (GetConnection() != null && GetConnection().activeInHierarchy);
                 AnimationCurve GetCurve() => le.AnimationCurve != null ? le.AnimationCurve : AnimationCurve.Linear(0, 0, 1, 1);
                 GameObject GetConnection() => le.Connection;

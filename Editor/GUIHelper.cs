@@ -61,4 +61,49 @@ public static class GUIHelper
 
         GUI.enabled = true;
     }
+
+    public static void DrawDatabaseButtons<T, V>(V value) where T : Database<V>
+    {
+        var db = Database.Load<T>();
+        if(db == null)
+        {
+            Debug.LogError($"Database of type {typeof(T)} does not exist");
+        }
+        else if(db.collection.Contains(value))
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+
+            GUIHelper.PushColor(Color.Lerp(Color.green, Color.white, 0.4f));
+            GUIHelper.CenterLabel("Exists in database", GUILayout.Height(30));
+            GUIHelper.PopColor();
+
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Remove from database", GUILayout.Width(200), GUILayout.Height(30)))
+            {
+                db.collection.Remove(value);
+                EditorUtility.SetDirty(db);
+                AssetDatabase.SaveAssets();
+            }
+            GUILayout.EndHorizontal();
+        }
+        else
+        {
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Add to database", GUILayout.Width(200), GUILayout.Height(30)))
+            {
+                db.collection.Add(value);
+                EditorUtility.SetDirty(db);
+                AssetDatabase.SaveAssets();
+            }
+            GUILayout.FlexibleSpace();
+
+            GUIHelper.PushColor(Color.Lerp(Color.red, Color.white, 0.4f));
+            GUIHelper.CenterLabel("Not in database", GUILayout.Height(30));
+            GUIHelper.PopColor();
+
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
+    }
 }
