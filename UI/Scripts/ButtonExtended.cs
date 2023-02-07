@@ -21,7 +21,7 @@ public class ButtonExtended : Button
 
     private void SelectionUpdate()
     {
-        var selected = EventSystemController.Instance.EventSystem.currentSelectedGameObject == gameObject;
+        var selected = EventSystem.current.currentSelectedGameObject == gameObject;
         if (Selected != selected)
         {
             if(Selected != selected)

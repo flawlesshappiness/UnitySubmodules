@@ -6,11 +6,12 @@ using UnityEngine.UI;
 
 public class UICurrencyBar : MonoBehaviour
 {
-    [SerializeField] private Image img_icon;
-    [SerializeField] private TMP_Text tmp_value;
-
     public CurrencyType currency;
     public bool update_on_start;
+
+    [SerializeField] private Image img_icon;
+    [SerializeField] private TMP_Text tmp_value;
+    [SerializeField] private FMODEventReference sfx_tally;
 
     private int current_text_value;
 
@@ -74,11 +75,18 @@ public class UICurrencyBar : MonoBehaviour
             curve = curve ?? EasingCurves.Linear;
             var start = current_text_value;
             var end = GetAmount();
+            var i_last = start;
             yield return LerpEnumerator.Value(duration, f =>
             {
                 var t = curve.Evaluate(f);
                 var v = (int)Mathf.Lerp(start, end, t);
                 SetValueText(v);
+
+                if(v != i_last)
+                {
+                    i_last = v;
+                    FMODController.Instance.PlayWithLimitDelay(sfx_tally);
+                }
             }).UnscaledTime();
             SetValueText(GetAmount());
         }

@@ -19,7 +19,7 @@ public class EventSystemButton : Button
 
     private void SelectionUpdate()
     {
-        var selected = EventSystemController.Instance.EventSystem.currentSelectedGameObject == gameObject;
+        var selected = EventSystem.current.currentSelectedGameObject == gameObject;
         if (Selected != selected)
         {
             Selected = selected;
