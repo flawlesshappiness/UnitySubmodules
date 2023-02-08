@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 public class LeftRightMenuItem : SelectableMenuItem
 {
     [Header("LEFT RIGHT MENU ITEM")]
-    public SelectableLeftRightAnimation left_right_animation;
+    public HorizontalArrowAnimation left_right_animation;
 
     public event System.Action onLeft;
     public event System.Action onRight;

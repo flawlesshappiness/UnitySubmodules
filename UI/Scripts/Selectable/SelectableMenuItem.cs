@@ -20,6 +20,22 @@ public class SelectableMenuItem : Selectable, IPointerClickHandler, ISubmitHandl
     public CanvasGroup CanvasGroup { get { return cvg; } }
     public static SelectableMenuItem Selected { get; set; }
 
+    protected override void Reset()
+    {
+        base.Reset();
+        transition = Transition.None;
+    }
+
+    protected override void OnValidate()
+    {
+        base.OnValidate();
+
+        if(cvg == null)
+        {
+            cvg = GetComponent<CanvasGroup>();
+        }
+    }
+
     protected override void Start()
     {
         if (!Application.isPlaying)

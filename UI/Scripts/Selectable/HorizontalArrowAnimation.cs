@@ -2,9 +2,8 @@ using Flawliz.Lerp;
 using System.Collections;
 using UnityEngine;
 
-public class SelectableLeftRightAnimation : SelectableSizeDeltaAnimation
+public class HorizontalArrowAnimation : MonoBehaviour
 {
-    [Header("SELECTABLE LEFT RIGHT ANIMATION")]
     public RectTransform rt_anim_left;
     public RectTransform rt_anim_right;
     public float anim_distance;
