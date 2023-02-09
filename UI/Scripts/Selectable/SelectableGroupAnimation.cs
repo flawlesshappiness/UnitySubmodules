@@ -6,7 +6,7 @@ public class SelectableGroupAnimation : SelectableAnimation
 {
     [SerializeField] private List<SelectableAnimation> animations = new List<SelectableAnimation>();
 
-    private void OnValidate()
+    private void Reset()
     {
         foreach (var animation in GetComponentsInChildren<SelectableAnimation>())
         {
