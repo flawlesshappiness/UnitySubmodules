@@ -59,7 +59,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.06538462, g: 0.1, b: 0.061538465, a: 1}
+  m_Color: {r: 0.06666667, g: 0.101960786, b: 0.0627451, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -88,7 +88,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f6284c260384d4419c133d680a4774a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 3
+  value:
+    editor_update: 0
+    palette_index: 0
+    palette_name: Main
+    map_index: 0
+    map_name: Background
+    color: {r: 0.06666667, g: 0.101960786, b: 0.0627451, a: 1}
   graphic: {fileID: 3918533449524405869}
 --- !u!1 &2370768296922821960
 GameObject:
@@ -249,7 +255,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.15, g: 0.3, b: 0.16764705, a: 1}
+  m_Color: {r: 0.14901961, g: 0.29803923, b: 0.16862746, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -278,7 +284,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f6284c260384d4419c133d680a4774a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
+  value:
+    editor_update: 0
+    palette_index: 0
+    palette_name: Main
+    map_index: 1
+    map_name: Main
+    color: {r: 0.14901961, g: 0.29803923, b: 0.16862746, a: 1}
   graphic: {fileID: 2354903894504850195}
 --- !u!1 &5042475374135594188
 GameObject:
@@ -291,6 +303,7 @@ GameObject:
   - component: {fileID: 375579059536430056}
   - component: {fileID: 5117215156412575625}
   - component: {fileID: 6862360624297923958}
+  - component: {fileID: 7822693506439962049}
   m_Layer: 5
   m_Name: img_icon
   m_TagString: Untagged
@@ -355,6 +368,26 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7822693506439962049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042475374135594188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f6284c260384d4419c133d680a4774a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  value:
+    editor_update: 0
+    palette_index: 0
+    palette_name: Main
+    map_index: 2
+    map_name: Highlight
+    color: {r: 1, g: 1, b: 1, a: 1}
+  graphic: {fileID: 6862360624297923958}
 --- !u!1 &6548595486647695802
 GameObject:
   m_ObjectHideFlags: 0
@@ -734,5 +767,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f6284c260384d4419c133d680a4774a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 2
+  value:
+    editor_update: 0
+    palette_index: 0
+    palette_name: Main
+    map_index: 2
+    map_name: Highlight
+    color: {r: 1, g: 1, b: 1, a: 1}
   graphic: {fileID: 7180973746543840595}

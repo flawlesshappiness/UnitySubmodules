@@ -40,9 +40,9 @@ public static class GUIHelper
     {
         return type switch
         {
-            GUITexture.MINUS => AssetDatabase.LoadAssetAtPath<Texture>("Assets/UnitySubmodules/Sprites/icon_minus.png"),
-            GUITexture.PLUS => AssetDatabase.LoadAssetAtPath<Texture>("Assets/UnitySubmodules/Sprites/icon_plus.png"),
-            GUITexture.SAVE => AssetDatabase.LoadAssetAtPath<Texture>("Assets/UnitySubmodules/Sprites/icon_save.png"),
+            GUITexture.MINUS => AssetDatabase.LoadAssetAtPath<Texture>($"{EditorPaths.SPRITES}/icon_minus.png"),
+            GUITexture.PLUS => AssetDatabase.LoadAssetAtPath<Texture>($"{EditorPaths.SPRITES}/icon_plus.png"),
+            GUITexture.SAVE => AssetDatabase.LoadAssetAtPath<Texture>($"{EditorPaths.SPRITES}/icon_save.png"),
             _ => null
         };
     }

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 
-public class ExtraEditorUtility
+public static class ExtraEditorUtility
 {
     public static void EnsureDirectoryExists(string path)
     {

@@ -1,84 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
-public class CreateViewWindow : EditorWindow
+public static class CreateViewWindow
 {
-    private static EditorWindow window;
-    private static string view_filename = "NewView";
-
     private const string EDITOR_PREFS_VIEW = "GeneratedViewAsset";
-
-    private const int HEIGHT = 60;
 
     [MenuItem("Create/View", false, 1)]
     [MenuItem("Assets/Create/UI/View", false, 1)]
     public static void ShowWinow()
     {
-        if(window != null)
-        {
-            // Window already open
-            return;
-        }
-
-        var rect = EditorGUIUtility.GetMainWindowPosition();
-
-        window = CreateInstance<CreateViewWindow>();
-        window.ShowPopup();
-        window.titleContent = new GUIContent("Create View");
-
-        window.minSize = new Vector2(rect.width * 0.5f, HEIGHT);
-        window.maxSize = window.minSize;
-
-        var x = rect.position.x + (rect.width * 0.5f) - (window.position.width * 0.5f);
-        var y = rect.position.y + (rect.height * 0.5f) - (window.position.height * 0.5f);
-        rect.width = window.position.width;
-        rect.height = window.position.height;
-        rect.position = new Vector2(x, y);
-        window.position = rect;
+        NameObjectWindow.Show("NewView", TryCreateView);
     }
 
-    private void Update()
-    {
-        if (!window.IsFocused())
-        {
-            window.Close();
-        }
-    }
-
-    private void OnGUI()
-    {
-        var font_prev = GUI.skin.textField.fontSize;
-        GUI.skin.textField.fontSize = (int)(HEIGHT * 0.7f);
-
-        GUILayout.BeginHorizontal();
-        GUI.SetNextControlName("TextField");
-        view_filename = EditorGUILayout.TextField(view_filename, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-        GUILayout.EndHorizontal();
-
-        GUI.skin.textField.fontSize = font_prev;
-
-        if (Event.current.isKey)
-        {
-            switch (Event.current.keyCode)
-            {
-                case KeyCode.Escape:
-                    window.Close();
-                    break;
-
-                case KeyCode.Return:
-                    window.Close();
-                    TryCreateView(view_filename);
-                    break;
-            }
-        }
-
-        EditorGUI.FocusTextInControl("TextField");
-    }
-
-    private void TryCreateView(string name)
+    private static void TryCreateView(string name)
     {
         var type_exists = ExtraEditorUtility.IdentifyScriptType(name) != null;
         if (type_exists)
@@ -90,16 +26,16 @@ public class CreateViewWindow : EditorWindow
         CreateScript(name);
     }
 
-    private void CreateScript(string name)
+    private static void CreateScript(string name)
     {
-        string path_script = "Assets/Scripts/Views";
+        string path_script = EditorPaths.VIEW_SCRIPTS;
         ExtraEditorUtility.EnsureDirectoryExists(path_script);
         var script_directory = AssetDatabase.LoadAssetAtPath(path_script, typeof(UnityEngine.Object));
         Selection.activeObject = script_directory;
         AssetDatabase.Refresh();
 
         ProjectWindowUtil.CreateScriptAssetFromTemplateFile(
-                    "Assets/UnitySubmodules/UI/Templates/ViewTemplate.cs.txt",
+                    $"{EditorPaths.UI_TEMPLATES}/ViewTemplate.cs.txt",
                     name + ".cs");
         RefocusEditorWindow();
         AssetDatabase.Refresh();
@@ -108,7 +44,7 @@ public class CreateViewWindow : EditorWindow
         EditorUtility.DisplayProgressBar("Hold on", "Recompiling scripts", 0f);
     }
 
-    private void RefocusEditorWindow()
+    private static void RefocusEditorWindow()
     {
         var current_window = EditorWindow.focusedWindow;
         var assembly = typeof(EditorWindow).Assembly;
@@ -133,15 +69,15 @@ public class CreateViewWindow : EditorWindow
 
     private static void CreateViewPrefab(string name)
     {
-        var asset = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/UnitySubmodules/UI/Prefabs/PrefabView.prefab");
-        var prefab = Instantiate(asset);
+        var asset = AssetDatabase.LoadAssetAtPath<GameObject>($"{EditorPaths.UI_PREFABS}/PrefabView.prefab");
+        var prefab = Object.Instantiate(asset);
         prefab.AddComponent(ExtraEditorUtility.IdentifyScriptType(name));
 
-        string dir = "Assets/Resources/Views/";
-        string path = string.Format("{0}{1}.prefab", dir, name);
+        string dir = EditorPaths.VIEW_PREFABS;
+        string path = string.Format("{0}/{1}.prefab", dir, name);
         ExtraEditorUtility.EnsureDirectoryExists(dir);
         PrefabUtility.SaveAsPrefabAsset(prefab, path);
         AssetDatabase.SaveAssets();
-        DestroyImmediate(prefab);
+        Object.DestroyImmediate(prefab);
     }
 }
