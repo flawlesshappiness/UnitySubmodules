@@ -46,6 +46,12 @@ public class ParticleSystemDuplicate
     public ParticleSystemDuplicate(ParticleSystem ps)
     {
         this.ps = Object.Instantiate(ps.gameObject).GetComponent<ParticleSystem>();
+        this.ps.gameObject.SetActive(true);
+        var t = ps.transform;
+        Position(t.position);
+        Rotation(t.rotation);
+        Scale(t.localScale);
+        Parent(t.parent);
     }
 
     public ParticleSystemDuplicate Play()
