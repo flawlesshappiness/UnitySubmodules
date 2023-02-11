@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -7,18 +8,20 @@ namespace Flawliz.VisualConsole
     public class ListButtonWindow : VisualConsoleWindow
     {
         [SerializeField] private ListButton template_button;
-        private List<ListButton> btns = new List<ListButton>();
+        [SerializeField] private TMP_Text template_text;
+        private List<GameObject> elements = new List<GameObject>();
 
         private void Start()
         {
             template_button.gameObject.SetActive(false);
+            template_text.gameObject.SetActive(false);
         }
 
         public override void Clear()
         {
             base.Clear();
-            btns.ForEach(btn => Destroy(btn.gameObject));
-            btns.Clear();
+            elements.ForEach(e => Destroy(e));
+            elements.Clear();
         }
 
         public ListButton CreateButton(string text, UnityAction onClick)
@@ -29,8 +32,17 @@ namespace Flawliz.VisualConsole
             btn.TextLeft = "";
             btn.TextRight = "";
             btn.onClick.AddListener(onClick);
-            btns.Add(btn);
+            elements.Add(btn.gameObject);
             return btn;
+        }
+
+        public TMP_Text CreateText(string text)
+        {
+            var t = Instantiate(template_text, template_text.transform.parent);
+            t.gameObject.SetActive(true);
+            t.text = text;
+            elements.Add(t.gameObject);
+            return t;
         }
     }
 }
