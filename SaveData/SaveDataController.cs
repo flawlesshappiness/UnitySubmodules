@@ -56,15 +56,9 @@ public class SaveDataController : Singleton
         PlayerPrefs.SetString(type.ToString(), json);
     }
 
-    private void ClearSaveData()
+    public void ClearSaveData()
     {
         PlayerPrefs.DeleteAll();
         data_objects.Clear();
-
-#if UNITY_EDITOR
-        EditorApplication.ExitPlaymode();
-#else
-        Application.Quit();
-#endif
     }
 }
