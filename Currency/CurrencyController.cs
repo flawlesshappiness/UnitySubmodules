@@ -6,21 +6,11 @@ public class CurrencyController : Singleton
 {
     public static CurrencyController Instance { get { return Instance<CurrencyController>(); } }
 
-    public CurrencySaveData Data { get { return _data ?? LoadData(); } }
-    private CurrencySaveData _data;
+    public CurrencySaveData Data { get { return SaveDataController.Instance.Get<CurrencySaveData>(); } }
 
     public event System.Action<CurrencyType> onCurrencyChanged;
     public event System.Action<CurrencyType> onCurrencyGained;
     public event System.Action<CurrencyType> onCurrencySpent;
-
-    private CurrencySaveData LoadData()
-    {
-        if(_data == null)
-        {
-            _data = SaveDataController.Instance.Get<CurrencySaveData>();
-        }
-        return _data;
-    }
 
     public int GetAmount(CurrencyType type)
     {

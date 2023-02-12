@@ -4,20 +4,9 @@ public class InternalShopController : Singleton
 {
     public static InternalShopController Instance { get { return Instance<InternalShopController>(); } }
 
-    private InternalShopSaveData Data { get { return _data ?? LoadData(); } }
-    private InternalShopSaveData _data;
+    private InternalShopSaveData Data { get { return SaveDataController.Instance.Get<InternalShopSaveData>(); } }
 
     public event System.Action<InternalShopPurchase> onPurchase;
-
-    private InternalShopSaveData LoadData()
-    {
-        if(_data == null)
-        {
-            _data = SaveDataController.Instance.Get<InternalShopSaveData>();
-        }
-
-        return _data;
-    }
 
     public bool IsPurchased(InternalShopProduct product) => IsPurchased(product.id);
     public bool IsPurchased(InternalShopProductID id)
