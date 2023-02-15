@@ -11,7 +11,6 @@ public class UICurrencyBar : MonoBehaviour
 
     [SerializeField] private Image img_icon;
     [SerializeField] private TMP_Text tmp_value;
-    [SerializeField] private FMODEventReference sfx_tally;
 
     private int current_text_value;
 
@@ -76,6 +75,7 @@ public class UICurrencyBar : MonoBehaviour
             var start = current_text_value;
             var end = GetAmount();
             var i_last = start;
+            var sfx = SoundDatabase.GetEntry(SoundEffectType.sfx_ui_tally).sfx;
             yield return LerpEnumerator.Value(duration, f =>
             {
                 var t = curve.Evaluate(f);
@@ -85,7 +85,7 @@ public class UICurrencyBar : MonoBehaviour
                 if(v != i_last)
                 {
                     i_last = v;
-                    FMODController.Instance.PlayWithLimitDelay(sfx_tally);
+                    SoundController.Instance.PlayGroup(sfx);
                 }
             }).UnscaledTime();
             SetValueText(GetAmount());
