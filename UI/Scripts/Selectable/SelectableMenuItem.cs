@@ -9,9 +9,7 @@ public class SelectableMenuItem : Selectable, IPointerClickHandler, ISubmitHandl
     [SerializeField] private bool select_on_start;
     [SerializeField] private CanvasGroup cvg;
     [SerializeField] private SelectableAnimation select_animation;
-
-    [SerializeField] private FMODEventReference sfx_select;
-    [SerializeField] private FMODEventReference sfx_submit;
+    [SerializeField] private SoundEffectType type_sfx_select;
 
     public event System.Action onSubmit;
     public event System.Action onSelect;
@@ -69,7 +67,7 @@ public class SelectableMenuItem : Selectable, IPointerClickHandler, ISubmitHandl
 
         if(Selected != null && Selected != this)
         {
-            sfx_select.Play();
+            SoundController.Instance.Play(type_sfx_select);
         }
 
         Selected = this;
@@ -115,7 +113,7 @@ public class SelectableMenuItem : Selectable, IPointerClickHandler, ISubmitHandl
     {
         if (interactable && submittable)
         {
-            sfx_submit.Play();
+            SoundController.Instance.Play(SoundEffectType.sfx_ui_submit);
             onSubmit?.Invoke();
         }
     }
