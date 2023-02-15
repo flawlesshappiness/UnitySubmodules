@@ -10,6 +10,8 @@ public class LogController : Singleton
 
     public List<Message> LoggedMessages { get { return logged_messages.ToList(); } }
 
+    private Color c_exception = new Color(0.9f, 0.3f, 0.3f);
+
     public class Message
     {
         public float time;
@@ -34,7 +36,7 @@ public class LogController : Singleton
         if(type == LogType.Exception)
         {
             var m = new Message(Time.time, stacktrace);
-            LogMessage($"{condition}\n{stacktrace}");
+            LogMessage($"{condition.Color(c_exception)}\n{stacktrace}");
         }
     }
 
@@ -42,5 +44,6 @@ public class LogController : Singleton
     {
         var m = new Message(Time.time, message);
         logged_messages.Add(m);
+        Debug.Log($"LogMessage: {message}");
     }
 }
