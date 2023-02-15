@@ -18,7 +18,8 @@ public class FakeEnumDrawer : PropertyDrawer
         EditorGUI.BeginChangeCheck();
         if (property.serializedObject != null)
         {
-            var current = GetValue(property) as FakeEnum;
+            var value = GetValue(property);
+            var current = value as FakeEnum;
             var types = FakeEnum.GetAll(current.GetType()).ToArray();
             var options = types.Select(x => x.id).ToArray();
             var idx = types.ToList().FindIndex((x) => x == current);
@@ -29,7 +30,10 @@ public class FakeEnumDrawer : PropertyDrawer
 
         if (EditorGUI.EndChangeCheck())
         {
+            property.serializedObject.Update();
+            property.serializedObject.ApplyModifiedProperties();
             EditorUtility.SetDirty(property.serializedObject.targetObject);
+            EditorApplication.QueuePlayerLoopUpdate();
         }
     }
 
@@ -61,6 +65,10 @@ public class FakeEnumDrawer : PropertyDrawer
             return null;
         var type = source.GetType();
         var f = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+        if(f == null)
+        {
+            f = type.BaseType.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+        }
         if (f == null)
         {
             var p = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
