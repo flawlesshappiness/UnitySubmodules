@@ -8,8 +8,10 @@ public class SearchPopup : PopupWindowContent
     private string[] options;
     private string[] valid_options;
     private int idx_selected;
-    private static string s_input;
     private System.Action<int> on_index_selected;
+
+    private static string s_input;
+    private static Vector2 scroll_position;
 
     private const int ELEMENT_HEIGHT = 20;
 
@@ -40,13 +42,15 @@ public class SearchPopup : PopupWindowContent
 
     public override Vector2 GetWindowSize()
     {
-        var height = ELEMENT_HEIGHT + (options.Length * ELEMENT_HEIGHT);
+        var height = Mathf.Min(400, ELEMENT_HEIGHT + (options.Length * ELEMENT_HEIGHT));
         return new Vector2(rect.width, height);
     }
 
     public override void OnGUI(Rect rect)
     {
         DrawSearchField();
+
+        scroll_position = EditorGUILayout.BeginScrollView(scroll_position);
 
         var style_normal = GetButtonStyle(false);
         var style_selected = GetButtonStyle(true);
@@ -63,6 +67,8 @@ public class SearchPopup : PopupWindowContent
                 editorWindow.Close();
             }
         }
+
+        EditorGUILayout.EndScrollView();
 
         editorWindow.Repaint();
     }
