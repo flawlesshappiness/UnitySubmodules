@@ -62,12 +62,12 @@ public static class GUIHelper
         GUI.enabled = true;
     }
 
-    public static void DrawDatabaseButtons<T, V>(V value) where T : Database<V>
+    public static void DrawDatabaseButtons<DB, V>(V value) where DB : Database<V>
     {
-        var db = Database.Load<T>();
+        var db = Database.Load<DB>();
         if(db == null)
         {
-            Debug.LogError($"Database of type {typeof(T)} does not exist");
+            Debug.LogError($"Database of type {typeof(DB)} does not exist");
         }
         else if(db.collection.Contains(value))
         {
