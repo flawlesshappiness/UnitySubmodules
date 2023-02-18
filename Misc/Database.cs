@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Database : ScriptableObject
@@ -30,4 +31,9 @@ public class Database : ScriptableObject
 public class Database<T> : Database
 {
     public List<T> collection = new List<T>();
+
+    protected virtual void OnValidate()
+    {
+        collection = collection.Where(item => item != null).ToList();
+    }
 }
