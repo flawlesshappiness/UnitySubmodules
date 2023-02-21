@@ -74,9 +74,9 @@ public static class GUIHelper
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
-            GUIHelper.PushColor(Color.Lerp(Color.green, Color.white, 0.4f));
-            GUIHelper.CenterLabel("Exists in database", GUILayout.Height(30));
-            GUIHelper.PopColor();
+            PushColor(Color.Lerp(Color.green, Color.white, 0.4f));
+            CenterLabel("Exists in database", GUILayout.Height(30));
+            PopColor();
 
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Remove from database", GUILayout.Width(200), GUILayout.Height(30)))
@@ -98,9 +98,9 @@ public static class GUIHelper
             }
             GUILayout.FlexibleSpace();
 
-            GUIHelper.PushColor(Color.Lerp(Color.red, Color.white, 0.4f));
-            GUIHelper.CenterLabel("Not in database", GUILayout.Height(30));
-            GUIHelper.PopColor();
+            PushColor(Color.Lerp(Color.red, Color.white, 0.4f));
+            CenterLabel("Not in database", GUILayout.Height(30));
+            PopColor();
 
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
