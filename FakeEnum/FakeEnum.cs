@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEditor;
+using UnityEngine;
 
 [System.Serializable]
 public abstract class FakeEnum : IComparable {
@@ -22,14 +22,17 @@ public abstract class FakeEnum : IComparable {
             .Cast<FakeEnum>();
 
     public override bool Equals(object obj) {
-        if (obj.GetType() != typeof(FakeEnum)) {
-            return false;
-        }
+        if (obj == null) return false;
 
         var typeMatches = GetType().Equals(obj.GetType());
         var valueMatches = id.Equals(((FakeEnum)obj).id);
 
         return typeMatches && valueMatches;
+    }
+
+    public override int GetHashCode()
+    {
+        return id.GetHashCode();
     }
 
     public static bool operator ==(FakeEnum A, FakeEnum B) {
