@@ -44,6 +44,6 @@ public class LogController : Singleton
     {
         var m = new Message(Time.time, message);
         logged_messages.Add(m);
-        Debug.Log($"LogMessage: {message}");
+        Debug.Log($"{message}");
     }
 }
