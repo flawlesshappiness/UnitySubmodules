@@ -14,6 +14,8 @@ public class UICurrencyBar : MonoBehaviour
 
     private int current_text_value;
 
+    public event System.Action<int, int, int> onTally;
+
     public void Start()
     {
         UpdateCurrencyInfo();
@@ -75,7 +77,6 @@ public class UICurrencyBar : MonoBehaviour
             var start = current_text_value;
             var end = GetAmount();
             var i_last = start;
-            var sfx = SoundDatabase.GetEntry(SoundEffectType.sfx_ui_tally).sfx;
             yield return LerpEnumerator.Value(duration, f =>
             {
                 var t = curve.Evaluate(f);
@@ -85,7 +86,7 @@ public class UICurrencyBar : MonoBehaviour
                 if(v != i_last)
                 {
                     i_last = v;
-                    SoundController.Instance.PlayGroup(sfx);
+                    onTally?.Invoke(v, start, end);
                 }
             }).UnscaledTime();
             SetValueText(GetAmount());
