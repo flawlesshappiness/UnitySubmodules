@@ -30,11 +30,6 @@ public abstract class FakeEnum : IComparable {
         return typeMatches && valueMatches;
     }
 
-    public override int GetHashCode()
-    {
-        return id.GetHashCode();
-    }
-
     public static bool operator ==(FakeEnum A, FakeEnum B) {
         if (ReferenceEquals(A, B)) {
             return true;
@@ -61,6 +56,11 @@ public abstract class FakeEnum : IComparable {
         }
 
         return !(A.id == B.id);
+    }
+
+    public override int GetHashCode()
+    {
+        return id.GetHashCode();
     }
 
     public int CompareTo(object other) =>
