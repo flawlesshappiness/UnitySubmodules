@@ -63,8 +63,13 @@ public class SelectableMenuItem : Selectable, IPointerClickHandler, ISubmitHandl
     {
         base.OnSelect(eventData);
         select_animation.AnimateSelect();
+
+        if (Selected != null && Selected != this)
+        {
+            onSelect?.Invoke();
+        }
+
         Selected = this;
-        onSelect?.Invoke();
     }
 
     public static void RemoveSelection()
