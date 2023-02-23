@@ -15,7 +15,6 @@ public class FakeEnumDrawer : PropertyDrawer
 
         var indent = rectLabel.x - position.x;
 
-        EditorGUI.BeginChangeCheck();
         if (property.serializedObject != null)
         {
             var value = GetValue(property);
@@ -24,19 +23,11 @@ public class FakeEnumDrawer : PropertyDrawer
             var options = types.Select(x => x.id).ToArray();
             var idx = types.ToList().FindIndex((x) => x == current);
             var rectPopup = new Rect(new Vector2(position.x + EditorGUIUtility.labelWidth, position.y), new Vector2(position.width - EditorGUIUtility.labelWidth, position.height));
-            //idx = EditorGUI.Popup(rectPopup, Mathf.Clamp(idx, 0, types.Length - 1), options);
-            //current.id = options[Mathf.Clamp(idx, 0, types.Length - 1)];
             SearchPopup.DrawButton(rectPopup, idx, options, i => {
                 current.id = options[Mathf.Clamp(i, 0, types.Length - 1)];
-            });
-        }
+                EditorUtility.SetDirty(property.serializedObject.targetObject);
 
-        if (EditorGUI.EndChangeCheck())
-        {
-            property.serializedObject.Update();
-            property.serializedObject.ApplyModifiedProperties();
-            EditorUtility.SetDirty(property.serializedObject.targetObject);
-            EditorApplication.QueuePlayerLoopUpdate();
+            });
         }
     }
 
