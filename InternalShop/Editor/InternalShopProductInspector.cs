@@ -11,6 +11,7 @@ public class InternalShopProductInspector : Editor
     }
     public override void OnInspectorGUI()
     {
+        GUIHelper.DrawAssetSaveButton(product);
         GUIHelper.DrawDatabaseButtons<InternalShopProductDatabase, InternalShopProduct>(product);
         GUILayout.Space(20);
         base.OnInspectorGUI();
