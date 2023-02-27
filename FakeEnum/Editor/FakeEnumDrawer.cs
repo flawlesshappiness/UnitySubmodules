@@ -21,12 +21,18 @@ public class FakeEnumDrawer : PropertyDrawer
             var current = value as FakeEnum;
             var types = FakeEnum.GetAll(current.GetType()).ToArray();
             var options = types.Select(x => x.id).ToArray();
+
+            if (string.IsNullOrEmpty(current.id) && options.Length > 0)
+            {
+                current.id = options[0];
+                EditorUtility.SetDirty(property.serializedObject.targetObject);
+            }
+
             var idx = types.ToList().FindIndex((x) => x == current);
             var rectPopup = new Rect(new Vector2(position.x + EditorGUIUtility.labelWidth, position.y), new Vector2(position.width - EditorGUIUtility.labelWidth, position.height));
             SearchPopup.DrawButton(rectPopup, idx, options, i => {
                 current.id = options[Mathf.Clamp(i, 0, types.Length - 1)];
                 EditorUtility.SetDirty(property.serializedObject.targetObject);
-
             });
         }
     }
