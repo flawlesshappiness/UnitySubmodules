@@ -7,7 +7,7 @@ public abstract class View : MonoBehaviourExtended
     protected Canvas Canvas { get { return GetComponentOnce<Canvas>(ComponentSearchType.PARENT); } }
     protected CanvasGroup CanvasGroup { get { return GetComponentOnce<CanvasGroup>(ComponentSearchType.THIS); } }
     protected RectTransform Root { get { return GetComponentOnce<RectTransform>(ComponentSearchType.THIS); } }
-    public bool Interactable { set { CanvasGroup.interactable = value; CanvasGroup.blocksRaycasts = value; } }
+    public bool Interactable { get { return CanvasGroup.interactable; } set { CanvasGroup.interactable = value; CanvasGroup.blocksRaycasts = value; } }
 
     public void Close(float duration)
     {
