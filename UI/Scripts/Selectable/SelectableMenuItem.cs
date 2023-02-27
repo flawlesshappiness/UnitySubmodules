@@ -109,7 +109,7 @@ public class SelectableMenuItem : Selectable, IPointerClickHandler, ISubmitHandl
 
     private void Submit()
     {
-        if (interactable && submittable)
+        if (IsInteractable() && submittable)
         {
             onSubmit?.Invoke();
         }
