@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace Flawliz.VisualConsole
 {
@@ -24,14 +25,13 @@ namespace Flawliz.VisualConsole
             elements.Clear();
         }
 
-        public ListButton CreateButton(string text, UnityAction onClick)
+        public ListButton CreateButton(string text)
         {
             var btn = Instantiate(template_button, template_button.transform.parent);
             btn.gameObject.SetActive(true);
             btn.TextCenter = text;
             btn.TextLeft = "";
             btn.TextRight = "";
-            btn.onClick.AddListener(onClick);
             elements.Add(btn.gameObject);
             return btn;
         }
