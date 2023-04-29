@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Database : ScriptableObject
+public abstract class Database : ScriptableObject
 {
     private static Dictionary<System.Type, Database> databases = new Dictionary<System.Type, Database>();
 
@@ -28,7 +28,7 @@ public class Database : ScriptableObject
     }
 }
 
-public class Database<T> : Database
+public abstract class Database<T> : Database
 {
     public List<T> collection = new List<T>();
 

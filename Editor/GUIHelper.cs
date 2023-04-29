@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using System.Linq;
 
 public static class GUIHelper
 {
@@ -62,7 +63,9 @@ public static class GUIHelper
         GUI.enabled = true;
     }
 
-    public static void DrawDatabaseButtons<DB, V>(V value) where DB : Database<V>
+    public static void DrawDatabaseButtons<DB, V>(V value)
+        where V : ScriptableObject
+        where DB : Database<V>
     {
         var db = Database.Load<DB>();
         if(db == null)
@@ -81,7 +84,13 @@ public static class GUIHelper
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Remove from database", GUILayout.Width(200), GUILayout.Height(30)))
             {
-                db.collection.Remove(value);
+                var items = Selection.objects.Select(o => o as V);
+                foreach (var item in items)
+                {
+                    if (item == null) continue;
+                    db.collection.Remove(item);
+                }
+
                 EditorUtility.SetDirty(db);
                 AssetDatabase.SaveAssets();
             }
@@ -92,7 +101,13 @@ public static class GUIHelper
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Add to database", GUILayout.Width(200), GUILayout.Height(30)))
             {
-                db.collection.Add(value);
+                var items = Selection.objects.Select(o => o as V);
+                foreach(var item in items)
+                {
+                    if (item == null) continue;
+                    db.collection.Add(item);
+                }
+
                 EditorUtility.SetDirty(db);
                 AssetDatabase.SaveAssets();
             }
