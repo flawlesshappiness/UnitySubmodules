@@ -62,7 +62,11 @@ public class SelectableMenuItem : Selectable, IPointerClickHandler, ISubmitHandl
     public override void OnSelect(BaseEventData eventData)
     {
         base.OnSelect(eventData);
-        select_animation.AnimateSelect();
+
+        if(select_animation != null)
+        {
+            select_animation.AnimateSelect();
+        }
 
         if (Selected != null && Selected != this)
         {
@@ -74,8 +78,12 @@ public class SelectableMenuItem : Selectable, IPointerClickHandler, ISubmitHandl
 
     public static void RemoveSelection()
     {
-        Selected.Deselect();
-        Selected = null;
+        if(Selected != null)
+        {
+            Selected.Deselect();
+            Selected = null;
+        }
+
         EventSystem.current.SetSelectedGameObject(null);
     }
 
@@ -88,7 +96,10 @@ public class SelectableMenuItem : Selectable, IPointerClickHandler, ISubmitHandl
 
     public void Deselect()
     {
-        select_animation.AnimateDeselect();
+        if(select_animation != null)
+        {
+            select_animation.AnimateDeselect();
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)

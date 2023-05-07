@@ -5,7 +5,7 @@ using UnityEngine;
 public class SelectableSizeDeltaAnimation : SelectableAnimation
 {
     [SerializeField] private RectTransform pivot_animation;
-    [SerializeField] private Vector3 scale_deselected, scale_selected;
+    [SerializeField] private Vector2 scale_deselected, scale_selected;
 
     private void OnEnable()
     {
@@ -25,7 +25,7 @@ public class SelectableSizeDeltaAnimation : SelectableAnimation
     public CustomCoroutine AnimateSelected(bool selected)
     {
         var end = selected ? scale_selected : scale_deselected;
-        return this.StartCoroutineWithID(Cr(), "animate_" + GetInstanceID()); ;
+        return this.StartCoroutineWithID(Cr(), "animate_" + GetInstanceID());
         IEnumerator Cr()
         {
             yield return LerpEnumerator.SizeDelta(pivot_animation, duration, end)
