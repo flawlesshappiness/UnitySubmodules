@@ -21,6 +21,14 @@ public static class CustomTransformExtensions
         return transform.DirectionTo(target.position);
     }
 
+    public static Quaternion RotationTo(this Transform transform, Transform target)
+    {
+        var dir = transform.DirectionTo(target);
+        var angle = Vector3.SignedAngle(Vector3.up, dir, Vector3.forward);
+        var rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        return rotation;
+    }
+
     public static void SetGlobalScale(this Transform transform, Vector3 scale)
     {
         transform.localScale = Vector3.one;
