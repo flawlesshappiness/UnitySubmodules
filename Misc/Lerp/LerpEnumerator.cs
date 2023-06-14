@@ -90,7 +90,7 @@ namespace Flawliz.Lerp
 
         // Local Position
         public static LerpEnumerator LocalPosition(Transform transform, float duration, Vector3 end) =>
-            Position(transform, duration, transform.localPosition, end);
+            LocalPosition(transform, duration, transform.localPosition, end);
         public static LerpEnumerator LocalPosition(Transform transform, float duration, Vector3 start, Vector3 end) =>
             Value(duration, f => transform.localPosition = Vector3.LerpUnclamped(start, end, f))
             .Connect(transform.gameObject);
