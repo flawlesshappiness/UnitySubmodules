@@ -22,9 +22,9 @@ public class FakeEnumDrawer : PropertyDrawer
             var types = FakeEnum.GetAll(current.GetType()).ToArray();
             var options = types.Select(x => x.id).ToArray();
 
-            if (string.IsNullOrEmpty(current.id) && options.Length > 0)
+            if (string.IsNullOrEmpty(current.id) && options.Length > 0 && !Application.isPlaying)
             {
-                current.id = options[0];
+                current = types.First();
                 EditorUtility.SetDirty(property.serializedObject.targetObject);
             }
 
