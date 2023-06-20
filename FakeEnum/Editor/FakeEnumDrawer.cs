@@ -8,6 +8,7 @@ using System;
 [CustomPropertyDrawer(typeof(FakeEnum), true)]
 public class FakeEnumDrawer : PropertyDrawer
 {
+#if UNITY_EDITOR
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         var rectLabel = EditorGUI.IndentedRect(position);
@@ -36,6 +37,7 @@ public class FakeEnumDrawer : PropertyDrawer
             });
         }
     }
+#endif
 
     // https://answers.unity.com/questions/425012/get-the-instance-the-serializedproperty-belongs-to.html
     public object GetParent(SerializedProperty prop)
