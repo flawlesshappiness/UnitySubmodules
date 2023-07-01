@@ -1,8 +1,8 @@
 using UnityEditor;
 using UnityEngine;
 
-public class DatabaseItemEditor<V, DB> : Editor 
-    where V : ScriptableObject 
+public class DatabaseItemEditor<V, DB> : Editor
+    where V : ScriptableObject
     where DB : Database<V>
 {
     protected V script;
@@ -14,9 +14,11 @@ public class DatabaseItemEditor<V, DB> : Editor
 
     public override void OnInspectorGUI()
     {
-        GUIHelper.DrawAssetSaveButton(script);
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
         GUIHelper.DrawDatabaseButtons<DB, V>(script);
-        EditorGUILayout.Space(20);
+        GUIHelper.DrawAssetSaveButton(script);
+        EditorGUILayout.EndHorizontal();
         base.OnInspectorGUI();
     }
 }
