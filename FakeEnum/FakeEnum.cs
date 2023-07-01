@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEngine;
 
-[System.Serializable]
-public abstract class FakeEnum : IComparable {
+[Serializable]
+public abstract class FakeEnum : IComparable
+{
     public string id;
 
-    public FakeEnum(string id) {
+    public FakeEnum(string id)
+    {
         this.id = id;
     }
 
@@ -21,7 +22,8 @@ public abstract class FakeEnum : IComparable {
             .Select(f => f.GetValue(null))
             .Cast<FakeEnum>();
 
-    public override bool Equals(object obj) {
+    public override bool Equals(object obj)
+    {
         if (obj == null) return false;
 
         var typeMatches = GetType().Equals(obj.GetType());
@@ -30,29 +32,21 @@ public abstract class FakeEnum : IComparable {
         return typeMatches && valueMatches;
     }
 
-    public static bool operator ==(FakeEnum A, FakeEnum B) {
-        if (ReferenceEquals(A, B)) {
-            return true;
-        }
-
-        if (ReferenceEquals(A, null)) {
-            return false;
-        }
-
-        if (ReferenceEquals(B, null)) {
+    public static bool operator ==(FakeEnum A, FakeEnum B)
+    {
+        if (A is null || B is null)
+        {
             return false;
         }
 
         return A.id.Equals(B.id);
     }
 
-    public static bool operator !=(FakeEnum A, FakeEnum B) {
-        if(ReferenceEquals(A, null)) {
-            return !ReferenceEquals(B, null);
-        }
-
-        if(ReferenceEquals(B, null)) {
-            return !ReferenceEquals(A, null);
+    public static bool operator !=(FakeEnum A, FakeEnum B)
+    {
+        if (A is null || B is null)
+        {
+            return false;
         }
 
         return !(A.id == B.id);
@@ -64,5 +58,5 @@ public abstract class FakeEnum : IComparable {
     }
 
     public int CompareTo(object other) =>
-        String.Compare(id, ((FakeEnum)other).id, StringComparison.Ordinal);
+        String.Compare(id, (other as FakeEnum).id, StringComparison.Ordinal);
 }
