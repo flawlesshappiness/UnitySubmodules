@@ -1,0 +1,10 @@
+using System.Linq;
+
+[System.Serializable]
+public partial class #SCRIPTNAME# : FakeEnum
+{
+    public #SCRIPTNAME#() : base(GetAll(typeof(#SCRIPTNAME#)).First().id) { }
+    public #SCRIPTNAME#(string id) : base(id) { }
+
+    public static readonly #SCRIPTNAME# BaseType = new #SCRIPTNAME#(nameof(BaseType));
+}
