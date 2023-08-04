@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class MonoBehaviourExtended : MonoBehaviour
@@ -80,6 +79,18 @@ public class MonoBehaviourExtended : MonoBehaviour
     public ParticleSystemDuplicate InstantiateParticle(string resourcePath)
     {
         return Resources.Load<ParticleSystem>(resourcePath).Duplicate();
+    }
+    #endregion
+    #region COROUTINE
+    protected bool TryStopCoroutine(Coroutine cr)
+    {
+        if (cr != null)
+        {
+            StopCoroutine(cr);
+            return true;
+        }
+
+        return false;
     }
     #endregion
 }
