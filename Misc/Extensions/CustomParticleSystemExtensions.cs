@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public static class CustomParticleSystemExtensions {
+public static class CustomParticleSystemExtensions
+{
     public static ParticleSystemDuplicate Duplicate(this ParticleSystem ps)
     {
         return new ParticleSystemDuplicate(ps);
@@ -23,11 +22,12 @@ public static class CustomParticleSystemExtensions {
     public static void ModifyCollision(this ParticleSystem ps, System.Action<ParticleSystem.CollisionModule> action, bool affectChildren = true) => ps.Modify(ps => action(ps.collision), affectChildren);
     public static void ModifyTrails(this ParticleSystem ps, System.Action<ParticleSystem.TrailModule> action, bool affectChildren = true) => ps.Modify(ps => action(ps.trails), affectChildren);
     public static void ModifyShape(this ParticleSystem ps, System.Action<ParticleSystem.ShapeModule> action, bool affectChildren = true) => ps.Modify(ps => action(ps.shape), affectChildren);
+    public static void ModifyRenderer(this ParticleSystem ps, System.Action<ParticleSystemRenderer> action, bool affectChildren = true) => ps.Modify(ps => action(ps.GetComponent<ParticleSystemRenderer>()), affectChildren);
     private static void Modify(this ParticleSystem ps, System.Action<ParticleSystem> action, bool affectChildren)
     {
         if (affectChildren)
         {
-            foreach(var child in ps.GetComponentsInChildren<ParticleSystem>())
+            foreach (var child in ps.GetComponentsInChildren<ParticleSystem>())
             {
                 action(child);
             }
