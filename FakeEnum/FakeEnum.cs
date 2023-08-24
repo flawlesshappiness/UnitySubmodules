@@ -34,21 +34,16 @@ public abstract class FakeEnum : IComparable
 
     public static bool operator ==(FakeEnum A, FakeEnum B)
     {
-        if (A is null || B is null)
-        {
-            return false;
-        }
-
+        if (A is null && B is null) return true;
+        if (A is null || B is null) return false;
         return A.id.Equals(B.id);
     }
 
     public static bool operator !=(FakeEnum A, FakeEnum B)
     {
-        if (A is null || B is null)
-        {
-            return false;
-        }
-
+        if (A is null && B is null) return false;
+        if (A is null) return true;
+        if (B is null) return true;
         return !(A.id == B.id);
     }
 
