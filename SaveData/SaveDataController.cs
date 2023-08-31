@@ -1,7 +1,6 @@
 using Flawliz.Console;
-using System.Collections;
+using Newtonsoft.Json;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 public class SaveDataController : Singleton
@@ -28,7 +27,7 @@ public class SaveDataController : Singleton
         else
         {
             var json = PlayerPrefs.GetString(typeof(T).ToString());
-            T data = string.IsNullOrEmpty(json) ? new T() : JsonUtility.FromJson<T>(json);
+            T data = string.IsNullOrEmpty(json) ? new T() : JsonConvert.DeserializeObject<T>(json);
             data_objects.Add(typeof(T), data);
             Save<T>();
             return data;
@@ -37,7 +36,7 @@ public class SaveDataController : Singleton
 
     public void SaveAll()
     {
-        foreach(var kvp in data_objects)
+        foreach (var kvp in data_objects)
         {
             Save(kvp.Key);
         }
@@ -52,7 +51,7 @@ public class SaveDataController : Singleton
     public void Save(System.Type type)
     {
         var data = data_objects[type];
-        var json = JsonUtility.ToJson(data);
+        var json = JsonConvert.SerializeObject(data);
         PlayerPrefs.SetString(type.ToString(), json);
     }
 
