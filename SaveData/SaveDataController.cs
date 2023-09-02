@@ -26,7 +26,7 @@ public class SaveDataController : Singleton
         }
         else
         {
-            var json = PlayerPrefs.GetString(typeof(T).ToString());
+            var json = PlayerPrefs.GetString(typeof(T).AssemblyQualifiedName);
             T data = string.IsNullOrEmpty(json) ? new T() : JsonConvert.DeserializeObject<T>(json);
             data_objects.Add(typeof(T), data);
             Save<T>();
@@ -52,7 +52,7 @@ public class SaveDataController : Singleton
     {
         var data = data_objects[type];
         var json = JsonConvert.SerializeObject(data);
-        PlayerPrefs.SetString(type.ToString(), json);
+        PlayerPrefs.SetString(type.AssemblyQualifiedName, json);
     }
 
     public void ClearSaveData()
