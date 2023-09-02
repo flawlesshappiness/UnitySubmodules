@@ -15,5 +15,6 @@ public class ColorPaletteGraphic : ColorPaletteTarget
     {
         base.OnValidate();
         graphic = graphic ?? GetComponent<Graphic>();
+        UpdateTargetColor(value.GetColor());
     }
 }
