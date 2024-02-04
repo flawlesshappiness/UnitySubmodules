@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
 
 [System.Serializable]
 public abstract class SaveDataObject
 {
-    
+    public DateTime update_time;
 }

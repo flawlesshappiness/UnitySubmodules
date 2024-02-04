@@ -1,5 +1,6 @@
 using Flawliz.Console;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,12 +27,23 @@ public class SaveDataController : Singleton
         }
         else
         {
-            var json = PlayerPrefs.GetString(typeof(T).AssemblyQualifiedName);
-            T data = string.IsNullOrEmpty(json) ? new T() : JsonConvert.DeserializeObject<T>(json);
-            data_objects.Add(typeof(T), data);
+            var filename = GetTypeName(typeof(T));
+            var local_data = GetLocal<T>();
+            var cloud_data = SteamIntegration.Instance.LoadCloudData<T>(filename);
+            var use_cloud = cloud_data != null && cloud_data.update_time > local_data.update_time;
+            var most_recent = use_cloud ? cloud_data : local_data;
+            data_objects.Add(typeof(T), most_recent);
             Save<T>();
-            return data;
+            return most_recent;
         }
+    }
+
+    private T GetLocal<T>() where T : SaveDataObject, new()
+    {
+        var name = GetTypeName(typeof(T));
+        var json = PlayerPrefs.GetString(name);
+        T data = string.IsNullOrEmpty(json) ? new T() : JsonConvert.DeserializeObject<T>(json);
+        return data;
     }
 
     public void SaveAll()
@@ -44,20 +56,32 @@ public class SaveDataController : Singleton
 
     public void Save<T>() where T : SaveDataObject, new()
     {
-        var data = Get<T>();
+        if (!data_objects.ContainsKey(typeof(T)))
+        {
+            GetLocal<T>();
+        }
+
         Save(typeof(T));
     }
 
     public void Save(System.Type type)
     {
+        var name = GetTypeName(type);
         var data = data_objects[type];
+        data.update_time = DateTime.UtcNow;
         var json = JsonConvert.SerializeObject(data);
-        PlayerPrefs.SetString(type.AssemblyQualifiedName, json);
+        PlayerPrefs.SetString(name, json);
+        SteamIntegration.Instance.SaveCloudData(name, json);
     }
 
     public void ClearSaveData()
     {
         PlayerPrefs.DeleteAll();
         data_objects.Clear();
+    }
+
+    private string GetTypeName(Type type)
+    {
+        return type.FullName;
     }
 }
