@@ -30,8 +30,9 @@ public class SaveDataController : Singleton
             var filename = GetTypeName(typeof(T));
             var local_data = GetLocal<T>();
             var cloud_data = SteamIntegration.Instance.LoadCloudData<T>(filename);
-            var use_cloud = cloud_data != null && cloud_data.update_time > local_data.update_time;
+            var use_cloud = cloud_data != null && cloud_data.update_time >= local_data.update_time;
             var most_recent = use_cloud ? cloud_data : local_data;
+            most_recent.from_cloud = use_cloud;
             data_objects.Add(typeof(T), most_recent);
             Save<T>();
             return most_recent;

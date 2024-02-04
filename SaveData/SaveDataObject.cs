@@ -4,4 +4,5 @@ using System;
 public abstract class SaveDataObject
 {
     public DateTime update_time;
+    public bool from_cloud;
 }
