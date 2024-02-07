@@ -7,6 +7,9 @@ using UnityEngine;
 public class SaveDataController : Singleton
 {
     public static SaveDataController Instance { get { return Instance<SaveDataController>(); } }
+
+    public System.Action onSaveDataClear;
+
     protected override void Initialize()
     {
         ConsoleController.Instance.RegisterCommand("ClearSaveData", ClearSaveData);
@@ -79,6 +82,7 @@ public class SaveDataController : Singleton
     {
         PlayerPrefs.DeleteAll();
         data_objects.Clear();
+        onSaveDataClear?.Invoke();
     }
 
     private string GetTypeName(Type type)
