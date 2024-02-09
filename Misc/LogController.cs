@@ -3,33 +3,31 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class LogController : Singleton
 {
+    private const string LOG_FILENAME = "log.txt";
+
     public static LogController Instance { get { return Instance<LogController>(); } }
 
-    private List<Message> logged_messages = new List<Message>();
-
-    public List<Message> LoggedMessages { get { return logged_messages.ToList(); } }
-
-    private Color c_exception = new Color(0.9f, 0.3f, 0.3f);
-
-    private const string LOG_FILENAME = "log.txt";
+    private static List<Message> logged_messages = new List<Message>();
+    public List<Message> LoggedMessages => logged_messages.ToList();
 
     public class Message
     {
         public string timeUtc;
         public string timeGame;
         public string message;
-        public Color color = Color.white;
+        public LogType log_type;
 
         public Message(string message)
         {
             this.message = message;
         }
 
-        public string GetDebugMessage() => $"[{timeGame}] {message.Color(color)}";
+        public string GetDebugMessage() => $"[{timeGame}] {message}";
 
         public string GetLogMessage() => $"[{timeUtc}] {message}";
     }
@@ -37,7 +35,7 @@ public class LogController : Singleton
     protected override void Initialize()
     {
         base.Initialize();
-        Application.logMessageReceived += LogException;
+        Application.logMessageReceived += LogUnhandledException;
 
         LogMessage("LogController initialized");
     }
@@ -74,57 +72,49 @@ public class LogController : Singleton
         }
     }
 
-    public void LogException(Exception e)
+    public static void LogException(Exception e)
     {
-        try
-        {
-            LogMessage(e.Message).color = c_exception;
-            LogMessage(e.StackTrace);
-        }
-        catch (Exception ex)
-        {
-            Debug.Log("Failed to log exception: " + ex.Message);
-        }
+        LogMessage($"{e.Message}\n{e.StackTrace}", LogType.Exception);
     }
 
-    private void LogException(string condition, string stacktrace, LogType type)
+    private void LogUnhandledException(string condition, string stacktrace, LogType type)
     {
-        try
+        if (type == LogType.Exception)
         {
-            if (type == LogType.Exception)
-            {
-                LogMessage($"{condition}").color = c_exception;
-                LogMessage($"{stacktrace}");
-            }
-        }
-        catch (Exception ex)
-        {
-            LogMessage("Failed to log exception properly. Trying again:");
-            LogMessage(condition);
-            LogMessage(stacktrace);
+            LogMessage($"ERROR: Unhandled exception\n{condition}\n{stacktrace}", LogType.Exception);
         }
 
         WriteToPersistentData();
     }
 
-    public Message LogMessage(string message)
+    public static void LogMethod(string message = "", [CallerFilePath] string file = "", [CallerMemberName] string caller = "")
+    {
+        if (string.IsNullOrEmpty(caller)) return;
+        if (string.IsNullOrEmpty(file)) return;
+        var filename = Path.GetFileNameWithoutExtension(file);
+        LogMessage(string.IsNullOrEmpty(message) ? $"{filename}.{caller}" : $"{filename}.{caller}: {message}");
+    }
+
+    public static void LogMessage(string message, LogType type = LogType.Log)
+    {
+        var m = CreateMessage(message);
+        m.log_type = type;
+        logged_messages.Add(m);
+    }
+
+    private static Message CreateMessage(string message)
     {
         try
         {
-            var m = new Message(message)
+            return new Message(message)
             {
-                timeGame = Time.time.ToString(),
+                timeGame = Time.unscaledTime.ToString("0.00"),
                 timeUtc = DateTime.UtcNow.ToString("hh:mm:ss.f", CultureInfo.InvariantCulture)
             };
-
-            logged_messages.Add(m);
-            return m;
         }
         catch (Exception e)
         {
-            var m = new Message(message);
-            logged_messages.Add(m);
-            return m;
+            return new Message(message);
         }
     }
 }
