@@ -81,8 +81,14 @@ public class SaveDataController : Singleton
     public void ClearSaveData()
     {
         PlayerPrefs.DeleteAll();
-        data_objects.Clear();
+
+        foreach (var kvp in data_objects)
+        {
+            kvp.Value.Clear();
+        }
+
         onSaveDataClear?.Invoke();
+        SaveAll();
     }
 
     private string GetTypeName(Type type)
