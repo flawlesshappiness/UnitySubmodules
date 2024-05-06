@@ -1,5 +1,4 @@
 using Flawliz.Console;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -46,7 +45,7 @@ public class SaveDataController : Singleton
     {
         var name = GetTypeName(typeof(T));
         var json = PlayerPrefs.GetString(name);
-        T data = string.IsNullOrEmpty(json) ? new T() : JsonConvert.DeserializeObject<T>(json);
+        T data = string.IsNullOrEmpty(json) ? new T() : JsonUtility.FromJson<T>(json);
         return data;
     }
 
@@ -73,7 +72,7 @@ public class SaveDataController : Singleton
         var name = GetTypeName(type);
         var data = data_objects[type];
         data.update_time = DateTime.UtcNow;
-        var json = JsonConvert.SerializeObject(data);
+        var json = JsonUtility.ToJson(data);
         PlayerPrefs.SetString(name, json);
         SteamIntegration.Instance.SaveCloudData(name, json);
     }
